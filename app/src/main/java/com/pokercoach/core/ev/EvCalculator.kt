@@ -153,6 +153,14 @@ object EvCalculator {
                 baseRaise = -0.50 + strengthBump * 1.20    // 3-bet 風險更高，獎勵更大
                 baseCheck = 0.0                            // BB vs RFI 沒有 check 選項
             }
+            is RangeScenario.SbVsRfi -> {
+                // SB 已投 0.5bb 死錢，面對 raiser 需補 (sizeBb - 0.5)bb
+                val toCall = scenario.sizeBb - 0.5
+                baseFold = 0.0
+                baseCall = -toCall * 0.40 + strengthBump * 0.75   // 位置最差，跟注 ev 較低
+                baseRaise = -0.40 + strengthBump * 1.30           // 3-bet 取位置主動權
+                baseCheck = 0.0
+            }
         }
 
         // 對於混合手，將 EV 推向同一水平（GTO 無差異）
@@ -223,14 +231,14 @@ object EvCalculator {
         val s = rec.strategy
         val pct = { d: Double -> "${(d * 100).toInt()}%" }
         val parts = buildList {
-            if (s.raise > 0) add("RAISE ${pct(s.raise)}")
-            if (s.call  > 0) add("CALL ${pct(s.call)}")
-            if (s.check > 0) add("CHECK ${pct(s.check)}")
-            if (s.fold  > 0) add("FOLD ${pct(s.fold)}")
+            if (s.raise > 0) add("${com.pokercoach.ui.theme.Strings.RAISE} ${pct(s.raise)}")
+            if (s.call  > 0) add("${com.pokercoach.ui.theme.Strings.CALL} ${pct(s.call)}")
+            if (s.check > 0) add("${com.pokercoach.ui.theme.Strings.CHECK} ${pct(s.check)}")
+            if (s.fold  > 0) add("${com.pokercoach.ui.theme.Strings.FOLD} ${pct(s.fold)}")
         }
         val mix = if (rec.isMixedDecision) " [GTO 混合決策]" else ""
-        return "${rec.hand} @ ${rec.scenario.displayName} → " +
+        return "${rec.hand} @ ${rec.scenario.displayNameZh} → " +
             parts.joinToString(" / ") + mix +
-            "  | Blended EV = ${"%.2f".format(rec.gtoBlendedEv)} bb"
+            "  | 加權 EV = ${"%.2f".format(rec.gtoBlendedEv)} bb"
     }
 }

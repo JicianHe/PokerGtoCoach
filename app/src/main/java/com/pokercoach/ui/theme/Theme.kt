@@ -1,30 +1,45 @@
 package com.pokercoach.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 
-private val PokerDarkScheme = darkColorScheme(
+private val PokerLightScheme = lightColorScheme(
     primary = HudAccent,
-    onPrimary = HudBg,
-    secondary = SeatHero,
-    background = FeltDark,
+    onPrimary = HudPanel,
+    secondary = HudAccent2,
+    onSecondary = HudTextPrimary,
+    tertiary = SeatHeroBlue,
+    background = HudBg,
     onBackground = HudTextPrimary,
     surface = HudPanel,
     onSurface = HudTextPrimary,
+    surfaceVariant = HudPanelSoft,
     error = HudBad,
-    onError = HudTextPrimary
+    onError = HudPanel
+)
+
+// 圓潤的元件形狀（卡通風）
+val PokerShapes = Shapes(
+    extraSmall = RoundedCornerShape(8.dp),
+    small      = RoundedCornerShape(12.dp),
+    medium     = RoundedCornerShape(18.dp),
+    large      = RoundedCornerShape(24.dp),
+    extraLarge = RoundedCornerShape(32.dp)
 )
 
 @Composable
 fun PokerCoachTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     MaterialTheme(
-        colorScheme = PokerDarkScheme,            // 撲克桌一律深色 UI
+        colorScheme = PokerLightScheme,
         typography = PokerTypography,
+        shapes = PokerShapes,
         content = content
     )
 }

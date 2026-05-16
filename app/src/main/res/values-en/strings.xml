@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Poker GTO Coach</string>
+    <string name="menu_freeplay">Free Play</string>
+    <string name="menu_trainer">Trainer</string>
+    <string name="menu_ranges">Ranges</string>
+    <string name="menu_history">History</string>
+    <string name="menu_stats">Stats</string>
+    <string name="menu_settings">Settings</string>
+</resources>

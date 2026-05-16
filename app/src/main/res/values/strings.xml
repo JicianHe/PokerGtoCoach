@@ -1,4 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Poker GTO Coach</string>
+    <!-- App -->
+    <string name="app_name">撲克 GTO 教練</string>
+
+    <!-- 主選單 -->
+    <string name="menu_freeplay">自由對戰</string>
+    <string name="menu_trainer">情境訓練</string>
+    <string name="menu_ranges">範圍查看</string>
+    <string name="menu_history">手牌歷史</string>
+    <string name="menu_stats">學習統計</string>
+    <string name="menu_settings">設定</string>
+
+    <!-- 通用 -->
+    <string name="action_continue">繼續</string>
+    <string name="action_next_hand">下一手 ›</string>
+    <string name="action_back">返回</string>
+    <string name="action_confirm">確認</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_restart">重新開始</string>
+
+    <!-- 牌局行動 -->
+    <string name="poker_fold">蓋牌</string>
+    <string name="poker_check">過牌</string>
+    <string name="poker_call">跟注</string>
+    <string name="poker_raise">加注</string>
+    <string name="poker_all_in">全下</string>
+    <string name="poker_bet">下注</string>
+    <string name="poker_pot">底池</string>
+    <string name="poker_bb">大盲</string>
+    <string name="poker_sb">小盲</string>
+    <string name="poker_button">按鈕</string>
+
+    <!-- 街 -->
+    <string name="street_preflop">翻前</string>
+    <string name="street_flop">翻牌</string>
+    <string name="street_turn">轉牌</string>
+    <string name="street_river">河牌</string>
+    <string name="street_showdown">攤牌</string>
+
+    <!-- 位置 -->
+    <string name="pos_utg">UTG（前位）</string>
+    <string name="pos_hj">HJ（中位）</string>
+    <string name="pos_co">CO（劫位）</string>
+    <string name="pos_btn">BTN（按鈕）</string>
+    <string name="pos_sb">SB（小盲）</string>
+    <string name="pos_bb">BB（大盲）</string>
+
+    <!-- HUD -->
+    <string name="hud_title">策略教練</string>
+    <string name="hud_before_action">行動前分析</string>
+    <string name="hud_review">GTO 點評</string>
+    <string name="hud_waiting">觀察中</string>
+    <string name="hud_hand_done">本手結束</string>
+    <string name="hud_to_call">需跟注</string>
+    <string name="hud_pot_odds">底池賠率</string>
+    <string name="hud_range_share">在範圍中佔比</string>
+    <string name="hud_mixed_decision">混合決策 — 此策略中任何選擇都是 GTO 合法的</string>
+    <string name="hud_gto_strategy">GTO 策略分佈</string>
+    <string name="hud_ev_per_action">各行動期望值</string>
+    <string name="hud_your_choice">你的選擇</string>
+    <string name="hud_baseline">GTO 基準</string>
+    <string name="hud_opponent_reasoning">對手推理</string>
+    <string name="hud_baseline_vs_adjusted">基準 → 剝削後</string>
+    <string name="hud_thinking">思考中…</string>
+    <string name="hud_dealing">發牌中…</string>
+    <string name="hud_continue_hint">點擊繼續查看下一步</string>
+    <string name="hud_review_hint">查看右側 GTO 點評</string>
+
+    <!-- 評價等級 -->
+    <string name="verdict_optimal">✓ 最佳決策</string>
+    <string name="verdict_acceptable">≈ 可接受的混合</string>
+    <string name="verdict_suboptimal">△ 次佳決策</string>
+    <string name="verdict_blunder">✗ 重大失誤</string>
+    <string name="verdict_unknown">— 無基準資料</string>
+
+    <!-- 牌局事件 -->
+    <string name="event_hand_started">第 %1$d 手開始（按鈕：座位 %2$d）</string>
+    <string name="event_blinds">小盲 %1$.1fbb（座位 %2$d）• 大盲 %3$.1fbb（座位 %4$d）</string>
+    <string name="event_hole_dealt">底牌已發</string>
+    <string name="event_street_dealt">— %1$s —</string>
+    <string name="event_winners">★ 贏家：%1$s（%2$s）</string>
+    <string name="event_reason_fold">其他玩家全部蓋牌</string>
+    <string name="event_reason_showdown">攤牌比牌</string>
+
+    <!-- 玩家狀態 -->
+    <string name="status_folded">已蓋牌</string>
+    <string name="status_all_in">全下</string>
+    <string name="status_you">你</string>
+
+    <!-- 訓練模式 -->
+    <string name="trainer_title">情境訓練</string>
+    <string name="trainer_btn_rfi">BTN 開池</string>
+    <string name="trainer_co_rfi">CO 開池</string>
+    <string name="trainer_bb_defense">BB 防守</string>
+    <string name="trainer_3bet_pot">3-bet 底池</string>
+    <string name="trainer_score">得分</string>
+    <string name="trainer_streak">連勝</string>
+    <string name="trainer_accuracy">準確率</string>
+    <string name="trainer_correct">正確！</string>
+    <string name="trainer_wrong">不太對哦</string>
+
+    <!-- Range Visualizer -->
+    <string name="ranges_title">範圍查看</string>
+    <string name="ranges_select_scenario">選擇情境</string>
+    <string name="ranges_overall_freq">整體頻率</string>
+    <string name="ranges_legend_raise">加注</string>
+    <string name="ranges_legend_call">跟注</string>
+    <string name="ranges_legend_fold">蓋牌</string>
+
+    <!-- 統計 -->
+    <string name="stats_title">學習統計</string>
+    <string name="stats_hands_played">已玩手數</string>
+    <string name="stats_optimal_rate">最佳率</string>
+    <string name="stats_acceptable_rate">可接受率</string>
+    <string name="stats_blunder_rate">失誤率</string>
+    <string name="stats_by_position">依位置</string>
+    <string name="stats_by_street">依街</string>
+    <string name="stats_no_data">尚無資料 — 多打幾手吧！</string>
+
+    <!-- 設定 -->
+    <string name="settings_title">設定</string>
+    <string name="settings_sound">音效</string>
+    <string name="settings_haptic">震動回饋</string>
+    <string name="settings_animations">動畫</string>
+    <string name="settings_ai_difficulty">AI 難度</string>
+    <string name="settings_difficulty_gto">純 GTO（最強）</string>
+    <string name="settings_difficulty_mixed">混合畫像（推薦）</string>
+    <string name="settings_difficulty_fish">魚池模式（輕鬆）</string>
+    <string name="settings_reset_stats">重置統計</string>
+    <string name="settings_about">關於</string>
+
+    <!-- 教學提示 -->
+    <string name="tip_pot_odds">底池賠率 = 需跟注 / (底池 + 需跟注)。當你的勝率高於底池賠率時，跟注有利可圖。</string>
+    <string name="tip_position">位置越靠後資訊越多，可玩的範圍越寬。BTN 是位置最好的座位。</string>
+    <string name="tip_mixed">GTO 在某些手牌會推薦混合策略，這不是「兩個都對」，而是要讓對手無法剝削你的可預測性。</string>
+    <string name="tip_3bet_bluff">弱同花 A（如 A5s）常用作 3-bet bluff，因為它們阻擋對手的強 A 並有翻後可玩性。</string>
+
+    <!-- 開發者 -->
+    <string name="loading">載入中…</string>
+    <string name="error_generic">發生錯誤，請重新啟動</string>
 </resources>

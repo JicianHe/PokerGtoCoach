@@ -314,36 +314,105 @@ class HandStateMachine(
             log = state.log + GameEvent.HandEnded(
                 winners = listOf(winnerSeat),
                 amounts = mapOf(winnerSeat to payout),
-                reason = "All opponents folded"
+                reason = com.pokercoach.ui.theme.Strings.REASON_FOLD
             )
         )
     }
 
     private fun endHandShowdown(state: TableState): TableState {
-        // 簡化：不處理 side pot（Phase 5 補完）。比較所有未 fold 玩家的 7-card 最佳 5 張。
+        // 完整 side pot 結算：
+        //   1) 收集每位玩家本手的 committedTotal（含所有街）
+        //   2) 由低到高的不同 committed 值切成多個 pot 層級
+        //   3) 每層的 pot 只在「符合資格」的玩家中比牌
+        //   4) 平手則該層內均分
         val contenders = state.players.filter { it.isInHand }
-        val scored = contenders.map { p ->
+        if (contenders.isEmpty()) {
+            // 退化：所有人都 fold（理論上 advance() 已先攔截，這裡保險）
+            return state.copy(actorSeat = null, street = Street.SHOWDOWN)
+        }
+
+        // 評分：seat → Score（含未在手中的 folded 玩家也要記，因為他們的 committedTotal 會貢獻 pot）
+        val scoreBySeat: Map<Int, com.pokercoach.core.eval.HandEvaluator.Score> = contenders.associate { p ->
             val seven = listOf(p.holeCards!!.first, p.holeCards.second) + state.board
-            p.seatIndex to HandEvaluator.evaluate(seven)
+            p.seatIndex to com.pokercoach.core.eval.HandEvaluator.evaluate(seven)
         }
-        val bestValue = scored.maxOf { it.second.value }
-        val winners = scored.filter { it.second.value == bestValue }.map { it.first }
-        val share = state.pot / winners.size
-        val newPlayers = state.players.map {
-            if (it.seatIndex in winners) it.copy(stack = it.stack + share) else it
+
+        // 1) 拆 side pots
+        val pots = buildSidePots(state.players)
+
+        // 2) 派彩
+        val payouts = mutableMapOf<Int, Double>()
+        val winnerSet = mutableSetOf<Int>()
+        for (pot in pots) {
+            // 此 pot 的 contenders：必須在手中（未 fold）且符合 eligibleSeats
+            val eligible = pot.eligibleSeats.filter { seat ->
+                contenders.any { it.seatIndex == seat }
+            }
+            if (eligible.isEmpty()) {
+                // 無人合資格 → 將金額退回最後一個有出資的玩家（極罕見退化）
+                val refundSeat = pot.eligibleSeats.lastOrNull() ?: continue
+                payouts.merge(refundSeat, pot.amount) { a, b -> a + b }
+                continue
+            }
+            val bestValue = eligible.maxOf { scoreBySeat.getValue(it).value }
+            val winners = eligible.filter { scoreBySeat.getValue(it).value == bestValue }
+            val share = pot.amount / winners.size
+            for (w in winners) {
+                payouts.merge(w, share) { a, b -> a + b }
+                winnerSet += w
+            }
         }
-        val amounts = winners.associateWith { share }
+
+        val newPlayers = state.players.map { p ->
+            val gain = payouts[p.seatIndex] ?: 0.0
+            if (gain > 0.0) p.copy(stack = p.stack + gain) else p
+        }
+
         return state.copy(
             players = newPlayers,
             pot = 0.0,
             actorSeat = null,
             street = Street.SHOWDOWN,
             log = state.log + GameEvent.HandEnded(
-                winners = winners,
-                amounts = amounts,
-                reason = "Showdown"
+                winners = winnerSet.toList().sorted(),
+                amounts = payouts,
+                reason = com.pokercoach.ui.theme.Strings.REASON_SHOWDOWN
             )
         )
+    }
+
+    /**
+     * 以「committedTotal」階梯切出 side pots。
+     *
+     * 範例：A 投 100、B 投 60（all-in）、C 投 30（all-in）、D 投 100：
+     *   層 1：30 × 4 玩家 = 120（A、B、C、D 都合資格）
+     *   層 2：(60-30) × 3 玩家 = 90（A、B、D 合資格）
+     *   層 3：(100-60) × 2 玩家 = 80（A、D 合資格）
+     */
+    data class SidePot(val amount: Double, val eligibleSeats: List<Int>)
+
+    private fun buildSidePots(players: List<Player>): List<SidePot> {
+        // 只取「有出錢」的玩家（含 folded — 他們的籌碼仍在 pot 裡）
+        val withMoney = players.filter { it.committedTotal > 1e-9 }
+        if (withMoney.isEmpty()) return emptyList()
+
+        // 不同投入金額階梯（去重 + 升冪）
+        val levels = withMoney.map { it.committedTotal }.toSortedSet().toList()
+
+        val result = mutableListOf<SidePot>()
+        var prevLevel = 0.0
+        for (lvl in levels) {
+            val layer = lvl - prevLevel
+            if (layer <= 1e-9) { prevLevel = lvl; continue }
+            // 此層的貢獻者：committedTotal >= lvl 的所有玩家
+            val contributors = withMoney.filter { it.committedTotal >= lvl - 1e-9 }
+            val amount = layer * contributors.size
+            // 合資格分錢的人：必須未 fold（folded 出了錢但無法贏）
+            val eligible = contributors.filter { it.isInHand }.map { it.seatIndex }
+            result += SidePot(amount = amount, eligibleSeats = eligible)
+            prevLevel = lvl
+        }
+        return result
     }
 
     // ---------------------------------------------------------------------

@@ -4,10 +4,10 @@ package com.pokercoach.core.model
  * 撲克花色。order 用於穩定排序 / 唯一鍵生成。
  */
 enum class Suit(val symbol: String, val order: Int) {
-    SPADES("♠", 0),
-    HEARTS("♥", 1),
-    DIAMONDS("♦", 2),
-    CLUBS("♣", 3);
+    SPADES("✈", 0),     // 飛機（Plane）
+    HEARTS("❤", 1),     // 愛心（Heart）
+    DIAMONDS("★", 2),   // 星星（Star）
+    CLUBS("☁", 3);      // 雲朵（Cloud）
 
     companion object {
         fun fromChar(c: Char): Suit = when (c.lowercaseChar()) {
