@@ -293,6 +293,7 @@ private fun handlePostflopResult(
     val street = inferStreetFromBoard(problem.board)
     scope.launch {
         statsRepo.recordDecision(verdict, problem.heroPosition, street)
+        statsRepo.recordTrainerAnswer(correct)
     }
 }
 

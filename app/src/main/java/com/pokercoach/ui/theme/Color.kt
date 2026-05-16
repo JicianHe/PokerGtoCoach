@@ -24,6 +24,8 @@ val SeatIdleSoft     = Color(0xFFDDE5EB)  // 灰白
 val SeatFoldedGray   = Color(0xFFBFBFBF)
 val SeatAllInOrange  = Color(0xFFFF8C61)
 val SeatHeroBlue     = Color(0xFF80C2E3)
+val SeatWinnerGold   = Color(0xFFFFD86B)  // 贏家金光
+val SeatWinnerGlow   = Color(0xFFFFF1B3)  // 贏家外圈柔光
 
 // ===== HUD 面板（米白底 + 柔和邊）=====
 val HudBg            = Color(0xFFFFF8F0)   // 米白

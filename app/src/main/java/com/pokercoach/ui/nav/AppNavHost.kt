@@ -17,6 +17,7 @@ import com.pokercoach.ui.screen.HandHistoryScreen
 import com.pokercoach.ui.screen.MainMenuScreen
 import com.pokercoach.ui.screen.OnboardingScreen
 import com.pokercoach.ui.screen.RangeVisualizerScreen
+import com.pokercoach.ui.screen.ReplayScreen
 import com.pokercoach.ui.screen.SettingsScreen
 import com.pokercoach.ui.screen.StatsScreen
 import com.pokercoach.ui.screen.TrainerScreen
@@ -103,6 +104,20 @@ fun AppNavHost() {
             composable(Routes.HISTORY) {
                 HandHistoryScreen(
                     historyRepo = app.historyRepo,
+                    onBack = { nav.popBackStack() },
+                    onReplay = { index -> nav.navigate(Routes.replay(index)) }
+                )
+            }
+            composable(
+                route = Routes.REPLAY,
+                arguments = listOf(androidx.navigation.navArgument("handIndex") {
+                    type = androidx.navigation.NavType.IntType
+                })
+            ) { backEntry ->
+                val index = backEntry.arguments?.getInt("handIndex") ?: 0
+                ReplayScreen(
+                    historyRepo = app.historyRepo,
+                    handIndex = index,
                     onBack = { nav.popBackStack() }
                 )
             }

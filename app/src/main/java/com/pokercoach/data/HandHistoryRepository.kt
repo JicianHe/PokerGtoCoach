@@ -29,7 +29,17 @@ data class HandRecord(
     val reason: String,
     val finalBoard: String,
     val actions: List<String>,
-    val timestamp: Long
+    val timestamp: Long,
+    /** 座位 → 玩家名稱（含英雄；舊紀錄為空 map）。 */
+    val playerNames: Map<Int, String> = emptyMap(),
+    /** 英雄座位（舊紀錄預設 0）。 */
+    val heroSeat: Int = 0,
+    /** 英雄底牌字串，例如 "A♠ K♥"（用於 Replay）。 */
+    val heroHole: String = "",
+    /** 翻牌/轉牌/河牌字串（用於 Replay 階段切換）。 */
+    val flop: String = "",
+    val turn: String = "",
+    val river: String = ""
 )
 
 class HandHistoryRepository(private val context: Context) {
@@ -73,20 +83,31 @@ class HandHistoryRepository(private val context: Context) {
             handNumber: Int,
             buttonSeat: Int,
             log: List<GameEvent>,
-            finalBoard: List<com.pokercoach.core.model.Card>
+            finalBoard: List<com.pokercoach.core.model.Card>,
+            players: List<com.pokercoach.core.game.Player> = emptyList(),
+            heroSeat: Int = 0
         ): HandRecord? {
             val ended = log.lastOrNull() as? GameEvent.HandEnded ?: return null
+            fun nameOf(seat: Int): String =
+                if (seat == heroSeat) com.pokercoach.ui.theme.Strings.NAME_YOU
+                else players.firstOrNull { it.seatIndex == seat }?.name ?: "座位 $seat"
             val actionLines = log.mapNotNull { ev ->
                 when (ev) {
                     is GameEvent.ActionTaken ->
-                        "${com.pokercoach.ui.theme.Strings.street(ev.street)} 座${ev.seat}: ${com.pokercoach.ui.theme.Strings.actionLabel(ev.action)} → 底池 ${"%.1f".format(ev.potAfter)}bb"
+                        "${com.pokercoach.ui.theme.Strings.street(ev.street)} ${nameOf(ev.seat)}: ${com.pokercoach.ui.theme.Strings.actionLabel(ev.action)} → 底池 ${"%.1f".format(ev.potAfter)}bb"
                     is GameEvent.StreetDealt ->
                         "── ${com.pokercoach.ui.theme.Strings.street(ev.street)}：${ev.newBoardCards.joinToString(" ")}"
                     is GameEvent.BlindsPosted ->
-                        "小盲 ${ev.sb}bb（座${ev.sbSeat}）/ 大盲 ${ev.bb}bb（座${ev.bbSeat}）"
+                        "小盲 ${ev.sb}bb（${nameOf(ev.sbSeat)}）/ 大盲 ${ev.bb}bb（${nameOf(ev.bbSeat)}）"
                     else -> null
                 }
             }
+            val streetCards = log.filterIsInstance<GameEvent.StreetDealt>()
+            val flopCards = streetCards.firstOrNull { it.street == Street.FLOP }?.newBoardCards?.joinToString(" ") ?: ""
+            val turnCard = streetCards.firstOrNull { it.street == Street.TURN }?.newBoardCards?.joinToString(" ") ?: ""
+            val riverCard = streetCards.firstOrNull { it.street == Street.RIVER }?.newBoardCards?.joinToString(" ") ?: ""
+            val hero = players.firstOrNull { it.seatIndex == heroSeat }
+            val heroHoleStr = hero?.holeCards?.let { "${it.first} ${it.second}" } ?: ""
             return HandRecord(
                 handNumber = handNumber,
                 buttonSeat = buttonSeat,
@@ -95,7 +116,13 @@ class HandHistoryRepository(private val context: Context) {
                 reason = ended.reason,
                 finalBoard = finalBoard.joinToString(" "),
                 actions = actionLines,
-                timestamp = System.currentTimeMillis()
+                timestamp = System.currentTimeMillis(),
+                playerNames = players.associate { it.seatIndex to it.name },
+                heroSeat = heroSeat,
+                heroHole = heroHoleStr,
+                flop = flopCards,
+                turn = turnCard,
+                river = riverCard
             )
         }
     }

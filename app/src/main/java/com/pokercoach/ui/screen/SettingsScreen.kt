@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -65,6 +65,7 @@ fun SettingsScreen(
             .fillMaxSize()
             .background(HudBg)
             .padding(32.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         Header(title = Strings.MENU_SETTINGS, onBack = onBack)
         Spacer(Modifier.height(16.dp))
@@ -109,6 +110,37 @@ fun SettingsScreen(
                 onClick = { scope.launch { settingsRepo.setDifficulty(SettingsRepository.Difficulty.FISH_POOL) } }
             )
         }
+
+        Spacer(Modifier.height(28.dp))
+        Text("HUD 顯示", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = HudTextPrimary)
+        Spacer(Modifier.height(4.dp))
+        Text("挑你想看的資訊；其餘隱藏以減少干擾。", color = HudTextDim, fontSize = 12.sp)
+        Spacer(Modifier.height(8.dp))
+        ToggleRow(
+            label = "GTO 策略分佈",
+            checked = s.hudShowGtoBars,
+            onChange = { v -> scope.launch { settingsRepo.setHudShowGtoBars(v) } }
+        )
+        ToggleRow(
+            label = "EV 明細",
+            checked = s.hudShowEvBreakdown,
+            onChange = { v -> scope.launch { settingsRepo.setHudShowEvBreakdown(v) } }
+        )
+        ToggleRow(
+            label = "對手 AI 推理",
+            checked = s.hudShowAiInsight,
+            onChange = { v -> scope.launch { settingsRepo.setHudShowAiInsight(v) } }
+        )
+        ToggleRow(
+            label = "翻後決策清單",
+            checked = s.hudShowPostflopChecklist,
+            onChange = { v -> scope.launch { settingsRepo.setHudShowPostflopChecklist(v) } }
+        )
+        ToggleRow(
+            label = "底池賠率",
+            checked = s.hudShowPotOdds,
+            onChange = { v -> scope.launch { settingsRepo.setHudShowPotOdds(v) } }
+        )
 
         Spacer(Modifier.height(36.dp))
 

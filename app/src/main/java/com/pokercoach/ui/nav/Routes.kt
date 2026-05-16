@@ -10,4 +10,7 @@ object Routes {
     const val STATS = "stats"
     const val SETTINGS = "settings"
     const val HISTORY = "history"
+    /** Replay 接收 hand index (在 history list 中的位置)，例如 "replay/3"。 */
+    const val REPLAY = "replay/{handIndex}"
+    fun replay(handIndex: Int) = "replay/$handIndex"
 }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -44,7 +45,8 @@ import java.util.Locale
 @Composable
 fun HandHistoryScreen(
     historyRepo: HandHistoryRepository,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onReplay: (Int) -> Unit = {}
 ) {
     val records by historyRepo.flow.collectAsState(initial = emptyList())
 
@@ -65,16 +67,25 @@ fun HandHistoryScreen(
         }
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            items(records) { r -> HandRow(r) }
+            itemsIndexed(records) { index, r ->
+                HandRow(r, onClick = { onReplay(index) })
+            }
         }
     }
 }
 
 @Composable
-private fun HandRow(r: HandRecord) {
+private fun HandRow(r: HandRecord, onClick: () -> Unit) {
     val fmt = remember { SimpleDateFormat("MM/dd HH:mm", Locale.TAIWAN) }
+    fun nameOf(seat: Int): String =
+        if (seat == r.heroSeat) Strings.NAME_YOU
+        else r.playerNames[seat] ?: "座位 $seat"
+    val winnersLabel = r.winners.joinToString("、") { nameOf(it) }
+    val heroWon = r.winners.contains(r.heroSeat)
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .pointerInput(r.handNumber) { detectTapGestures(onTap = { onClick() }) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(2.dp)
@@ -85,10 +96,14 @@ private fun HandRow(r: HandRecord) {
                 Spacer(Modifier.width(12.dp))
                 Text(fmt.format(Date(r.timestamp)), color = HudTextDim, fontSize = 12.sp)
                 Spacer(Modifier.width(12.dp))
-                Text("BTN=座${r.buttonSeat}", color = HudTextDim, fontSize = 12.sp)
+                Text("BTN=${nameOf(r.buttonSeat)}", color = HudTextDim, fontSize = 12.sp)
+                if (heroWon) {
+                    Spacer(Modifier.width(8.dp))
+                    Text("🎉 你贏", color = HudGood, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
             }
             Spacer(Modifier.height(6.dp))
-            Text("${r.reason}　贏家：${Strings.winners(r.winners)}", color = HudGood, fontSize = 14.sp)
+            Text("${r.reason}　贏家：$winnersLabel", color = HudGood, fontSize = 14.sp)
             if (r.finalBoard.isNotBlank()) {
                 Spacer(Modifier.height(2.dp))
                 Text("最終公牌：${r.finalBoard}", color = HudTextPrimary, fontSize = 13.sp)

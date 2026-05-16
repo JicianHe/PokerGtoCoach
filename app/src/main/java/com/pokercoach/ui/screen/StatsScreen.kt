@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -23,12 +25,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pokercoach.core.achievements.Achievement
+import com.pokercoach.core.achievements.AchievementRegistry
 import com.pokercoach.data.LearningStats
 import com.pokercoach.data.StatsRepository
 import com.pokercoach.ui.theme.HudAccent
@@ -56,14 +61,15 @@ fun StatsScreen(
             .fillMaxSize()
             .background(HudBg)
             .padding(32.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         Header(title = Strings.STATS_TITLE, onBack = onBack)
         Spacer(Modifier.height(16.dp))
 
-        if (stats.totalDecisions == 0) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(Strings.STATS_NO_DATA, color = HudTextDim, fontSize = 20.sp)
-            }
+        if (stats.totalDecisions == 0 && stats.handsPlayed == 0) {
+            Text(Strings.STATS_NO_DATA, color = HudTextDim, fontSize = 20.sp)
+            Spacer(Modifier.height(24.dp))
+            AchievementsSection(stats)
             return@Column
         }
 
@@ -129,6 +135,95 @@ fun StatsScreen(
                 }
                 Spacer(Modifier.width(8.dp))
                 Text("${(s.rate * 100).toInt()}% (${s.decisions})", color = HudTextDim, fontSize = 13.sp, modifier = Modifier.width(90.dp))
+            }
+        }
+
+        Spacer(Modifier.height(28.dp))
+        AchievementsSection(stats)
+    }
+}
+
+@Composable
+private fun AchievementsSection(stats: LearningStats) {
+    val all = AchievementRegistry.ALL
+    val unlocked = all.count { stats.unlockedAchievements.contains(it.id) }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text("成就", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = HudTextPrimary)
+        Spacer(Modifier.width(10.dp))
+        Text("$unlocked / ${all.size}", color = HudAccent2, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+    }
+    Spacer(Modifier.height(8.dp))
+    // 用簡單兩欄 Column 排列（避免 nested scroll 與 LazyVerticalGrid 衝突）
+    val rows = all.chunked(2)
+    rows.forEach { pair ->
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            pair.forEach { ach ->
+                AchievementCard(
+                    achievement = ach,
+                    stats = stats,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            if (pair.size == 1) Spacer(Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun AchievementCard(achievement: Achievement, stats: LearningStats, modifier: Modifier = Modifier) {
+    val isUnlocked = stats.unlockedAchievements.contains(achievement.id)
+    val progress = achievement.progress(stats).coerceIn(0f, 1f)
+    Card(
+        modifier = modifier.height(86.dp),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isUnlocked) Color(0xFFFFF6E1) else androidx.compose.material3.MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(if (isUnlocked) 3.dp else 1.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxSize().padding(10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    achievement.icon,
+                    fontSize = 22.sp,
+                    modifier = if (isUnlocked) Modifier else Modifier.alpha(0.35f)
+                )
+                Spacer(Modifier.width(8.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        achievement.title,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isUnlocked) HudTextPrimary else HudTextDim
+                    )
+                    Text(
+                        achievement.description,
+                        fontSize = 10.sp,
+                        color = HudTextDim,
+                        maxLines = 2
+                    )
+                }
+                if (isUnlocked) {
+                    Text("✓", color = HudGood, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+            Spacer(Modifier.height(6.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(5.dp)
+                    .clip(RoundedCornerShape(3.dp))
+                    .background(Color(0xFFEEE5DA))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(progress)
+                        .background(if (isUnlocked) HudGood else HudAccent2)
+                )
             }
         }
     }

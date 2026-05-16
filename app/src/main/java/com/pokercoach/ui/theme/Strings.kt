@@ -78,8 +78,25 @@ object Strings {
     const val V_UNKNOWN = "— 無基準資料"
 
     // ===== 牌局事件 =====
+    /** 以座位 index 顯示（fallback）。優先使用 winnersByName。 */
     fun winners(seats: List<Int>): String =
         seats.joinToString("、") { "座位 $it" }
+
+    /**
+     * 用玩家名稱列出贏家；英雄 (heroSeat) 顯示為「你」。
+     *
+     * @param seats 贏家座位
+     * @param players 全桌玩家（用來查名稱）
+     * @param heroSeat 英雄座位 index（通常 0）
+     */
+    fun winnersByName(
+        seats: List<Int>,
+        players: List<com.pokercoach.core.game.Player>,
+        heroSeat: Int
+    ): String = seats.joinToString("、") { seat ->
+        if (seat == heroSeat) NAME_YOU
+        else players.firstOrNull { it.seatIndex == seat }?.name ?: "座位 $seat"
+    }
 
     const val REASON_FOLD = "其他玩家全部蓋牌"
     const val REASON_SHOWDOWN = "攤牌比牌"
@@ -110,6 +127,14 @@ object Strings {
     const val RANGE_TITLE = "範圍查看"
     const val RANGE_OVERALL_FREQ = "整體頻率"
     const val RANGE_SELECT = "選擇情境"
+    const val RANGE_SEARCH_HINT = "輸入手牌，如 AKs / QQ / 72o"
+    const val RANGE_SELECTED = "已選"
+    const val RANGE_CLEAR = "清除"
+    const val RANGE_RAISE = "加注"
+    const val RANGE_CALL = "跟注"
+    const val RANGE_FOLD = "蓋牌"
+    const val RANGE_CHECK = "過牌"
+    const val RANGE_COMBOS = "組合數"
 
     // ===== 統計 =====
     const val STATS_TITLE = "學習統計"

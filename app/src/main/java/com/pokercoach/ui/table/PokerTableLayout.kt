@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pokercoach.core.game.TableState
+import com.pokercoach.core.game.GameEvent
+import com.pokercoach.core.game.Street
 import com.pokercoach.ui.common.CardView
 import com.pokercoach.ui.common.ChipStack
 import com.pokercoach.ui.theme.TableRail
@@ -42,6 +44,7 @@ import kotlin.math.sin
 fun PokerTableLayout(
     state: TableState,
     heroSeat: Int = 0,
+    winningSeats: Set<Int> = emptySet(),
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -72,7 +75,8 @@ fun PokerTableLayout(
         // 玩家座位（橢圓分布）
         SeatRing(
             state = state,
-            heroSeat = heroSeat
+            heroSeat = heroSeat,
+            winningSeats = winningSeats
         )
     }
 }
@@ -114,17 +118,34 @@ private fun TableCenter(state: TableState, modifier: Modifier = Modifier) {
  * 座位順序：以 heroSeat 為「下方 90°」起點，順時針 60° 步進。
  */
 @Composable
-private fun SeatRing(state: TableState, heroSeat: Int) {
+private fun SeatRing(state: TableState, heroSeat: Int, winningSeats: Set<Int>) {
+    // 攤牌時讓所有未蓋牌玩家亮牌
+    val isShowdown = state.street == Street.SHOWDOWN
+    // 取最近一次 ActionTaken 來推斷 mood
+    val lastActionBySeat: Map<Int, GameEvent.ActionTaken> =
+        state.log.filterIsInstance<GameEvent.ActionTaken>()
+            .groupBy { it.seat }
+            .mapValues { it.value.last() }
+
     Layout(
         content = {
             for (seat in 0..5) {
                 val p = state.players.first { it.seatIndex == seat }
+                val mood = computeMood(
+                    isWinner = seat in winningSeats,
+                    isFolded = p.status == com.pokercoach.core.game.PlayerStatus.FOLDED,
+                    isAllIn = p.status == com.pokercoach.core.game.PlayerStatus.ALL_IN,
+                    lastAction = lastActionBySeat[seat]
+                )
                 Box {
                     PlayerSeat(
                         player = p,
                         isHero = (seat == heroSeat),
                         isActor = (state.actorSeat == seat),
-                        isButton = (state.buttonSeat == seat)
+                        isButton = (state.buttonSeat == seat),
+                        isWinner = (seat in winningSeats),
+                        revealHoleCards = isShowdown && p.status != com.pokercoach.core.game.PlayerStatus.FOLDED,
+                        mood = mood
                     )
                 }
             }
@@ -151,5 +172,24 @@ private fun SeatRing(state: TableState, heroSeat: Int) {
                 placeable.place(IntOffset(x, y))
             }
         }
+    }
+}
+
+private fun computeMood(
+    isWinner: Boolean,
+    isFolded: Boolean,
+    isAllIn: Boolean,
+    lastAction: GameEvent.ActionTaken?
+): SeatMood {
+    if (isWinner) return SeatMood.HAPPY
+    if (isFolded) return SeatMood.SAD
+    if (isAllIn) return SeatMood.NERVOUS
+    return when (val a = lastAction?.action) {
+        is com.pokercoach.core.model.Action.Raise ->
+            if (a.amount >= 6.0) SeatMood.AGGRESSIVE else SeatMood.NEUTRAL
+        is com.pokercoach.core.model.Action.Call -> SeatMood.THINKING
+        is com.pokercoach.core.model.Action.Check -> SeatMood.NEUTRAL
+        is com.pokercoach.core.model.Action.Fold -> SeatMood.SAD
+        null -> SeatMood.NEUTRAL
     }
 }

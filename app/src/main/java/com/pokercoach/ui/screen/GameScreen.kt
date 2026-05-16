@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,6 +46,8 @@ fun GameScreen(vm: GameViewModel, onBack: () -> Unit = {}) {
     val pause by vm.pause.collectAsState()
     val recommendation by vm.heroRecommendation.collectAsState()
     val aiDecision by vm.lastAiDecision.collectAsState()
+    val settings by vm.settings.collectAsState()
+    val hudPrefs = remember(settings) { com.pokercoach.ui.hud.HudPreferences.from(settings) }
 
     Row(
         modifier = Modifier
@@ -80,7 +83,7 @@ fun GameScreen(vm: GameViewModel, onBack: () -> Unit = {}) {
                 color = HudTextDim, fontSize = 13.sp
             )
             Spacer(Modifier.height(12.dp))
-            HandLog(events = state.log)
+            HandLog(events = state.log, players = state.players, heroSeat = vm.heroSeat)
         }
 
         // ===== Mid column: Table + ActionBar =====
@@ -91,9 +94,13 @@ fun GameScreen(vm: GameViewModel, onBack: () -> Unit = {}) {
                 .padding(8.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            val winningSeats: Set<Int> = remember(state.log) {
+                (state.log.lastOrNull() as? GameEvent.HandEnded)?.winners?.toSet() ?: emptySet()
+            }
             PokerTableLayout(
                 state = state,
                 heroSeat = vm.heroSeat,
+                winningSeats = winningSeats,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
@@ -120,7 +127,8 @@ fun GameScreen(vm: GameViewModel, onBack: () -> Unit = {}) {
                 pauseState = pause,
                 lastAiDecision = aiDecision,
                 onContinue = { vm.continueAfterReview() },
-                onNextHand = { vm.startNextHand() }
+                onNextHand = { vm.startNextHand() },
+                prefs = hudPrefs
             )
         }
     }
@@ -173,16 +181,24 @@ private fun BottomActionArea(
 }
 
 @Composable
-private fun HandLog(events: List<GameEvent>) {
+private fun HandLog(
+    events: List<GameEvent>,
+    players: List<com.pokercoach.core.game.Player>,
+    heroSeat: Int
+) {
+    fun nameOf(seat: Int): String =
+        if (seat == heroSeat) Strings.NAME_YOU
+        else players.firstOrNull { it.seatIndex == seat }?.name ?: "座位 $seat"
+
     LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         items(events.reversed()) { ev ->
             val text = when (ev) {
-                is GameEvent.HandStarted -> "▶ 第 ${ev.handNumber} 手 (BTN 座${ev.buttonSeat})"
-                is GameEvent.BlindsPosted -> "  SB=${ev.sb}bb 座${ev.sbSeat} • BB=${ev.bb}bb 座${ev.bbSeat}"
+                is GameEvent.HandStarted -> "▶ 第 ${ev.handNumber} 手 (BTN ${nameOf(ev.buttonSeat)})"
+                is GameEvent.BlindsPosted -> "  SB=${ev.sb}bb ${nameOf(ev.sbSeat)} • BB=${ev.bb}bb ${nameOf(ev.bbSeat)}"
                 is GameEvent.HoleCardsDealt -> "  發底牌"
                 is GameEvent.StreetDealt -> "── ${Strings.street(ev.street)} ${ev.newBoardCards.joinToString(" ")}"
-                is GameEvent.ActionTaken -> "  座${ev.seat}: ${Strings.actionLabel(ev.action)}  (底池 ${"%.1f".format(ev.potAfter)})"
-                is GameEvent.HandEnded -> "★ 贏家: ${Strings.winners(ev.winners)} (${ev.reason})"
+                is GameEvent.ActionTaken -> "  ${nameOf(ev.seat)}: ${Strings.actionLabel(ev.action)}  (底池 ${"%.1f".format(ev.potAfter)})"
+                is GameEvent.HandEnded -> "★ 贏家: ${Strings.winnersByName(ev.winners, players, heroSeat)} (${ev.reason})"
             }
             val color = when (ev) {
                 is GameEvent.HandStarted, is GameEvent.HandEnded -> HudTextPrimary

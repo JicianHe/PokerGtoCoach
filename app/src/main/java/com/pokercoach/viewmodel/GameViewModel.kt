@@ -167,14 +167,17 @@ class GameViewModel(
         val ended = state.log.lastOrNull() as? GameEvent.HandEnded ?: return
         _pause.value = PauseState.HandComplete(ended)
 
-        // 持久化：手數 + history
+        // 持久化：手數 + history + 英雄輸贏
         viewModelScope.launch {
             statsRepo.incrementHands()
+            statsRepo.recordHeroResult(heroWon = ended.winners.contains(heroSeat))
             HandHistoryRepository.fromLog(
                 handNumber = state.handNumber,
                 buttonSeat = state.buttonSeat,
                 log = state.log,
-                finalBoard = state.board
+                finalBoard = state.board,
+                players = state.players,
+                heroSeat = heroSeat
             )?.let { historyRepo.append(it) }
         }
     }

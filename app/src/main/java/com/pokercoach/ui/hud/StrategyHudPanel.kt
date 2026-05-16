@@ -59,6 +59,7 @@ fun StrategyHudPanel(
     lastAiDecision: PokerAi.Decision?,
     onContinue: () -> Unit,
     onNextHand: () -> Unit,
+    prefs: HudPreferences = HudPreferences.DEFAULT,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -72,21 +73,21 @@ fun StrategyHudPanel(
 
         when (pauseState) {
             is GameViewModel.PauseState.HandComplete -> {
-                HandEndCard(pauseState.event, onNextHand)
+                HandEndCard(pauseState.event, state.players, heroSeat, onNextHand)
             }
             is GameViewModel.PauseState.HeroReview -> {
                 ReviewCard(pauseState, onContinue)
             }
             is GameViewModel.PauseState.None -> {
                 if (state.actorSeat == heroSeat) {
-                    PreDecisionCard(state, heroSeat, recommendation)
+                    PreDecisionCard(state, heroSeat, recommendation, prefs)
                 } else {
                     WaitingCard(state)
                 }
             }
         }
 
-        if (lastAiDecision != null && pauseState !is GameViewModel.PauseState.HandComplete) {
+        if (prefs.showAiInsight && lastAiDecision != null && pauseState !is GameViewModel.PauseState.HandComplete) {
             AiInsightCard(lastAiDecision)
         }
     }
@@ -125,7 +126,8 @@ private fun HeaderBar(state: TableState) {
 private fun PreDecisionCard(
     state: TableState,
     heroSeat: Int,
-    rec: EvCalculator.Recommendation?
+    rec: EvCalculator.Recommendation?,
+    prefs: HudPreferences = HudPreferences.DEFAULT
 ) {
     HudCard(title = Strings.HUD_BEFORE, accent = HudAccent) {
         val hero = state.players.first { it.seatIndex == heroSeat }
@@ -136,25 +138,31 @@ private fun PreDecisionCard(
             Text(hole?.toString() ?: "??", color = HudTextPrimary, fontSize = 22.sp, fontWeight = FontWeight.Bold)
             Text("@ ${Strings.position(hero.position)}", color = HudTextDim, fontSize = 14.sp)
         }
-        Spacer(Modifier.height(6.dp))
-        Text(
-            "${Strings.HUD_TO_CALL} ${"%.1f".format(toCall)} ${Strings.BB_UNIT}  •  ${Strings.HUD_POT_ODDS} ${potOddsString(state, heroSeat)}",
-            color = HudTextDim, fontSize = 13.sp
-        )
+        if (prefs.showPotOdds) {
+            Spacer(Modifier.height(6.dp))
+            Text(
+                "${Strings.HUD_TO_CALL} ${"%.1f".format(toCall)} ${Strings.BB_UNIT}  •  ${Strings.HUD_POT_ODDS} ${potOddsString(state, heroSeat)}",
+                color = HudTextDim, fontSize = 13.sp
+            )
+        }
 
         Spacer(Modifier.height(10.dp))
 
         if (state.street == Street.PREFLOP && rec != null) {
-            Text(
-                Strings.HUD_GTO_STRATEGY,
-                color = HudAccent, fontSize = 11.sp,
-                fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp
-            )
-            Spacer(Modifier.height(6.dp))
-            StrategyBar(rec.strategy)
-            Spacer(Modifier.height(8.dp))
-            EvBreakdown(rec.evByAction)
-            Spacer(Modifier.height(8.dp))
+            if (prefs.showGtoBars) {
+                Text(
+                    Strings.HUD_GTO_STRATEGY,
+                    color = HudAccent, fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp
+                )
+                Spacer(Modifier.height(6.dp))
+                StrategyBar(rec.strategy)
+                Spacer(Modifier.height(8.dp))
+            }
+            if (prefs.showEvBreakdown) {
+                EvBreakdown(rec.evByAction)
+                Spacer(Modifier.height(8.dp))
+            }
             Text(
                 "${Strings.HUD_RANGE_SHARE}：${"%.1f".format(rec.rangeFrequencyPct)}%",
                 color = HudTextDim, fontSize = 12.sp
@@ -168,7 +176,7 @@ private fun PreDecisionCard(
                 "此翻前情境無 solver 範圍快取，\n請依撲克基本面自行判斷。",
                 color = HudWarn, fontSize = 12.sp
             )
-        } else {
+        } else if (prefs.showPostflopChecklist) {
             PostflopHeuristicHint(state, heroSeat)
         }
     }
@@ -288,17 +296,27 @@ private fun WaitingCard(state: TableState) {
 // 手牌結算
 // ============================================================
 @Composable
-private fun HandEndCard(ev: GameEvent.HandEnded, onNextHand: () -> Unit) {
+private fun HandEndCard(
+    ev: GameEvent.HandEnded,
+    players: List<com.pokercoach.core.game.Player>,
+    heroSeat: Int,
+    onNextHand: () -> Unit
+) {
+    fun nameOf(seat: Int): String =
+        if (seat == heroSeat) Strings.NAME_YOU
+        else players.firstOrNull { it.seatIndex == seat }?.name ?: "座位 $seat"
+    val heroWon = ev.winners.contains(heroSeat)
     HudCard(title = Strings.HUD_HAND_DONE, accent = HudGood) {
         Text(
-            "贏家：${Strings.winners(ev.winners)}",
+            "贏家：${Strings.winnersByName(ev.winners, players, heroSeat)}" +
+                if (heroWon) "  🎉" else "",
             color = HudTextPrimary, fontSize = 15.sp, fontWeight = FontWeight.SemiBold
         )
         Spacer(Modifier.height(4.dp))
         Text("勝因：${ev.reason}", color = HudTextDim, fontSize = 12.sp)
         Spacer(Modifier.height(4.dp))
         for ((seat, amt) in ev.amounts) {
-            Text("座位 $seat +${"%.1f".format(amt)} ${Strings.BB_UNIT}", color = HudGood, fontSize = 13.sp)
+            Text("${nameOf(seat)} +${"%.1f".format(amt)} ${Strings.BB_UNIT}", color = HudGood, fontSize = 13.sp)
         }
         Spacer(Modifier.height(14.dp))
         ContinueButton(Strings.HUD_NEXT_HAND, onNextHand)

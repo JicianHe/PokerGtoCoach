@@ -35,7 +35,12 @@ class SettingsRepository(private val context: Context) {
         val hapticOn: Boolean = true,
         val animationsOn: Boolean = true,
         val difficulty: Difficulty = Difficulty.MIXED_PROFILES,
-        val onboardingSeen: Boolean = false
+        val onboardingSeen: Boolean = false,
+        val hudShowGtoBars: Boolean = true,
+        val hudShowEvBreakdown: Boolean = true,
+        val hudShowAiInsight: Boolean = true,
+        val hudShowPostflopChecklist: Boolean = true,
+        val hudShowPotOdds: Boolean = true
     )
 
     private object Keys {
@@ -44,6 +49,11 @@ class SettingsRepository(private val context: Context) {
         val ANIM      = booleanPreferencesKey("anim")
         val DIFFICULTY = stringPreferencesKey("difficulty")
         val ONBOARDING_SEEN = booleanPreferencesKey("onboarding_seen")
+        val HUD_GTO = booleanPreferencesKey("hud_gto")
+        val HUD_EV = booleanPreferencesKey("hud_ev")
+        val HUD_AI = booleanPreferencesKey("hud_ai")
+        val HUD_CHECKLIST = booleanPreferencesKey("hud_checklist")
+        val HUD_POT_ODDS = booleanPreferencesKey("hud_pot_odds")
     }
 
     val settingsFlow: Flow<Settings> = context.settingsDataStore.data
@@ -54,7 +64,12 @@ class SettingsRepository(private val context: Context) {
                 hapticOn = prefs[Keys.HAPTIC] ?: true,
                 animationsOn = prefs[Keys.ANIM] ?: true,
                 difficulty = Difficulty.fromKey(prefs[Keys.DIFFICULTY]),
-                onboardingSeen = prefs[Keys.ONBOARDING_SEEN] ?: false
+                onboardingSeen = prefs[Keys.ONBOARDING_SEEN] ?: false,
+                hudShowGtoBars = prefs[Keys.HUD_GTO] ?: true,
+                hudShowEvBreakdown = prefs[Keys.HUD_EV] ?: true,
+                hudShowAiInsight = prefs[Keys.HUD_AI] ?: true,
+                hudShowPostflopChecklist = prefs[Keys.HUD_CHECKLIST] ?: true,
+                hudShowPotOdds = prefs[Keys.HUD_POT_ODDS] ?: true
             )
         }
 
@@ -68,6 +83,17 @@ class SettingsRepository(private val context: Context) {
         context.settingsDataStore.edit { it[Keys.DIFFICULTY] = d.storeKey }
     suspend fun markOnboardingSeen() =
         context.settingsDataStore.edit { it[Keys.ONBOARDING_SEEN] = true }
+
+    suspend fun setHudShowGtoBars(on: Boolean) =
+        context.settingsDataStore.edit { it[Keys.HUD_GTO] = on }
+    suspend fun setHudShowEvBreakdown(on: Boolean) =
+        context.settingsDataStore.edit { it[Keys.HUD_EV] = on }
+    suspend fun setHudShowAiInsight(on: Boolean) =
+        context.settingsDataStore.edit { it[Keys.HUD_AI] = on }
+    suspend fun setHudShowPostflopChecklist(on: Boolean) =
+        context.settingsDataStore.edit { it[Keys.HUD_CHECKLIST] = on }
+    suspend fun setHudShowPotOdds(on: Boolean) =
+        context.settingsDataStore.edit { it[Keys.HUD_POT_ODDS] = on }
 
     suspend fun reset() {
         context.settingsDataStore.edit { it.clear() }
