@@ -21,7 +21,7 @@ import com.pokercoach.core.game.GameEvent
 import com.pokercoach.ui.hud.StrategyHudPanel
 import com.pokercoach.ui.table.ActionBar
 import com.pokercoach.ui.table.PokerTableLayout
-import com.pokercoach.ui.theme.FeltDark
+import com.pokercoach.ui.theme.TableTopDeep
 import com.pokercoach.ui.theme.HudBg
 import com.pokercoach.ui.theme.HudPanel
 import com.pokercoach.ui.theme.HudTextDim
@@ -49,7 +49,7 @@ fun GameScreen(vm: GameViewModel, onBack: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .background(FeltDark)
+            .background(TableTopDeep)
     ) {
         // ===== Left column: Hand log =====
         Column(

@@ -16,14 +16,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pokercoach.core.game.TableState
 import com.pokercoach.core.model.Action
-import com.pokercoach.ui.theme.ActionAllIn
-import com.pokercoach.ui.theme.ActionCall
-import com.pokercoach.ui.theme.ActionCheck
-import com.pokercoach.ui.theme.ActionFold
-import com.pokercoach.ui.theme.ActionRaise
+import com.pokercoach.ui.theme.ActionAllInRed
+import com.pokercoach.ui.theme.ActionCallGreen
+import com.pokercoach.ui.theme.ActionCheckBlue
+import com.pokercoach.ui.theme.ActionFoldGray
+import com.pokercoach.ui.theme.ActionRaisePink
 import com.pokercoach.ui.theme.HudPanel
 import com.pokercoach.ui.theme.HudTextDim
 import com.pokercoach.ui.theme.HudTextPrimary
+import com.pokercoach.ui.theme.Strings
 
 /**
  * 玩家行動列：Fold / Check / Call / Raise 含 bet sizing slider 與快速按鈕（½ pot, ¾ pot, pot, all-in）。
@@ -61,8 +62,8 @@ fun ActionBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         ActionButton(
-            label = "FOLD",
-            color = ActionFold,
+            label = Strings.FOLD,
+            color = ActionFoldGray,
             enabled = !canCheck,
             modifier = Modifier.weight(1f).height(64.dp),
             onClick = { onAction(Action.Fold) }
@@ -70,16 +71,16 @@ fun ActionBar(
 
         if (canCheck) {
             ActionButton(
-                label = "CHECK",
-                color = ActionCheck,
+                label = Strings.CHECK,
+                color = ActionCheckBlue,
                 enabled = true,
                 modifier = Modifier.weight(1f).height(64.dp),
                 onClick = { onAction(Action.Check) }
             )
         } else {
             ActionButton(
-                label = "CALL\n${"%.1f".format(toCall)} bb",
-                color = ActionCall,
+                label = "${Strings.CALL}\n${"%.1f".format(toCall)} ${Strings.BB_UNIT}",
+                color = ActionCallGreen,
                 enabled = canCall,
                 modifier = Modifier.weight(1f).height(64.dp),
                 onClick = { onAction(Action.Call) }
@@ -92,16 +93,16 @@ fun ActionBar(
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                QuickSizeChip("½ pot", canRaise) {
+                QuickSizeChip("½ 池", canRaise) {
                     raiseTo = clampRaise(state.currentBet + state.pot * 0.5, minRaiseTo, maxRaiseTo)
                 }
-                QuickSizeChip("¾ pot", canRaise) {
+                QuickSizeChip("¾ 池", canRaise) {
                     raiseTo = clampRaise(state.currentBet + state.pot * 0.75, minRaiseTo, maxRaiseTo)
                 }
-                QuickSizeChip("Pot", canRaise) {
+                QuickSizeChip("滿池", canRaise) {
                     raiseTo = clampRaise(state.currentBet + state.pot, minRaiseTo, maxRaiseTo)
                 }
-                QuickSizeChip("All-in", canRaise) {
+                QuickSizeChip(Strings.ALL_IN, canRaise) {
                     raiseTo = maxRaiseTo
                 }
             }
@@ -116,9 +117,9 @@ fun ActionBar(
         }
 
         ActionButton(
-            label = if (raiseTo >= maxRaiseTo - 1e-6) "ALL-IN\n${"%.1f".format(maxRaiseTo)} bb"
-                    else "RAISE\n${"%.1f".format(raiseTo)} bb",
-            color = if (raiseTo >= maxRaiseTo - 1e-6) ActionAllIn else ActionRaise,
+            label = if (raiseTo >= maxRaiseTo - 1e-6) "${Strings.ALL_IN}\n${"%.1f".format(maxRaiseTo)} ${Strings.BB_UNIT}"
+                    else "${Strings.RAISE}\n${"%.1f".format(raiseTo)} ${Strings.BB_UNIT}",
+            color = if (raiseTo >= maxRaiseTo - 1e-6) ActionAllInRed else ActionRaisePink,
             enabled = canRaise,
             modifier = Modifier.weight(1.5f).height(64.dp),
             onClick = { onAction(Action.Raise(raiseTo)) }

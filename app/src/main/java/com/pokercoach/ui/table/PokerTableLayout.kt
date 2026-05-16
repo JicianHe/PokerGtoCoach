@@ -19,11 +19,11 @@ import androidx.compose.ui.unit.sp
 import com.pokercoach.core.game.TableState
 import com.pokercoach.ui.common.CardView
 import com.pokercoach.ui.common.ChipStack
-import com.pokercoach.ui.theme.FeltDark
-import com.pokercoach.ui.theme.FeltLight
-import com.pokercoach.ui.theme.FeltMid
-import com.pokercoach.ui.theme.FeltRail
-import com.pokercoach.ui.theme.FeltRailHi
+import com.pokercoach.ui.theme.TableRail
+import com.pokercoach.ui.theme.TableRailHi
+import com.pokercoach.ui.theme.TableTopDeep
+import com.pokercoach.ui.theme.TableTopMid
+import com.pokercoach.ui.theme.TableTopMint
 import com.pokercoach.ui.theme.HudTextPrimary
 import kotlin.math.PI
 import kotlin.math.cos
@@ -50,14 +50,14 @@ fun PokerTableLayout(
             .shadow(20.dp, RoundedCornerShape(percent = 50))
             .background(
                 brush = Brush.radialGradient(
-                    colors = listOf(FeltRailHi, FeltRail)
+                    colors = listOf(TableRailHi, TableRail)
                 ),
                 shape = RoundedCornerShape(percent = 50)
             )
             .padding(22.dp)
             .background(
                 brush = Brush.radialGradient(
-                    colors = listOf(FeltLight, FeltMid, FeltDark)
+                    colors = listOf(TableTopMint, TableTopMid, TableTopDeep)
                 ),
                 shape = RoundedCornerShape(percent = 50)
             )
@@ -91,7 +91,7 @@ private fun TableCenter(state: TableState, modifier: Modifier = Modifier) {
                 .padding(horizontal = 18.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "POT  ${"%.1f".format(state.pot)} bb",
+                text = "${com.pokercoach.ui.theme.Strings.POT}  ${"%.1f".format(state.pot)} ${com.pokercoach.ui.theme.Strings.BB_UNIT}",
                 color = HudTextPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold

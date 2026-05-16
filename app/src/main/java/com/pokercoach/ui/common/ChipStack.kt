@@ -13,11 +13,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pokercoach.ui.theme.ChipBlack
-import com.pokercoach.ui.theme.ChipBlue
-import com.pokercoach.ui.theme.ChipGreen
-import com.pokercoach.ui.theme.ChipRed
-import com.pokercoach.ui.theme.ChipWhite
+import com.pokercoach.ui.theme.ChipPurple
+import com.pokercoach.ui.theme.ChipSky
+import com.pokercoach.ui.theme.ChipMint
+import com.pokercoach.ui.theme.ChipPink
+import com.pokercoach.ui.theme.ChipPeach
+import com.pokercoach.ui.theme.Strings
 
 /**
  * 籌碼堆視覺化：依金額拆分為不同面值的籌碼疊起。
@@ -47,7 +48,7 @@ fun ChipStack(
                 .padding(horizontal = 8.dp, vertical = 2.dp)
         ) {
             Text(
-                text = "${formatBb(amountBb)} bb",
+                text = "${formatBb(amountBb)} ${Strings.BB_UNIT}",
                 color = Color.White,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold
@@ -74,11 +75,11 @@ private fun chipBreakdown(amount: Double): List<Pair<Color, Int>> {
     var remain = amount
     val list = mutableListOf<Pair<Color, Int>>()
     val denoms = listOf(
-        500.0 to ChipBlack,
-        100.0 to ChipBlue,
-        25.0  to ChipGreen,
-        5.0   to ChipRed,
-        1.0   to ChipWhite
+        500.0 to ChipPurple,
+        100.0 to ChipSky,
+        25.0  to ChipMint,
+        5.0   to ChipPink,
+        1.0   to ChipPeach
     )
     for ((d, c) in denoms) {
         val n = (remain / d).toInt()
@@ -87,8 +88,8 @@ private fun chipBreakdown(amount: Double): List<Pair<Color, Int>> {
             remain -= n * d
         }
     }
-    // 不足 1bb 的尾數也顯示一顆白籌碼
-    if (list.isEmpty() && amount > 0) list += ChipWhite to 1
+    // 不足 1bb 的尾數也顯示一顆桃色籌碼
+    if (list.isEmpty() && amount > 0) list += ChipPeach to 1
     return list
 }
 

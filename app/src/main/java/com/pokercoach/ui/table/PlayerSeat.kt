@@ -23,11 +23,12 @@ import com.pokercoach.ui.common.CardView
 import com.pokercoach.ui.theme.HudPanel
 import com.pokercoach.ui.theme.HudTextDim
 import com.pokercoach.ui.theme.HudTextPrimary
-import com.pokercoach.ui.theme.SeatActive
-import com.pokercoach.ui.theme.SeatAllIn
-import com.pokercoach.ui.theme.SeatFolded
-import com.pokercoach.ui.theme.SeatHero
-import com.pokercoach.ui.theme.SeatIdle
+import com.pokercoach.ui.theme.SeatActiveGlow
+import com.pokercoach.ui.theme.SeatAllInOrange
+import com.pokercoach.ui.theme.SeatFoldedGray
+import com.pokercoach.ui.theme.SeatHeroBlue
+import com.pokercoach.ui.theme.SeatIdleSoft
+import com.pokercoach.ui.theme.Strings
 
 /**
  * 一個玩家座位的視覺呈現：頭像區（顯示名稱 + 位置）、底牌、籌碼。
@@ -46,11 +47,11 @@ fun PlayerSeat(
 ) {
     val borderColor by animateColorAsState(
         targetValue = when {
-            player.status == PlayerStatus.FOLDED -> SeatFolded
-            player.status == PlayerStatus.ALL_IN -> SeatAllIn
-            isActor -> SeatActive
-            isHero -> SeatHero
-            else -> SeatIdle
+            player.status == PlayerStatus.FOLDED -> SeatFoldedGray
+            player.status == PlayerStatus.ALL_IN -> SeatAllInOrange
+            isActor -> SeatActiveGlow
+            isHero -> SeatHeroBlue
+            else -> SeatIdleSoft
         },
         animationSpec = tween(durationMillis = 220),
         label = "seatBorder"
@@ -91,7 +92,7 @@ fun PlayerSeat(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         text = player.name,
-                        color = if (isHero) SeatHero else HudTextPrimary,
+                        color = if (isHero) SeatHeroBlue else HudTextPrimary,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -101,14 +102,14 @@ fun PlayerSeat(
                     if (isButton) ButtonMarker()
                 }
                 Text(
-                    text = "${player.position.displayName}  •  ${"%.1f".format(player.stack)} bb",
+                    text = "${Strings.position(player.position)}  •  ${"%.1f".format(player.stack)} ${Strings.BB_UNIT}",
                     color = HudTextDim,
                     fontSize = 12.sp
                 )
                 if (player.status == PlayerStatus.FOLDED) {
-                    Text("FOLDED", color = SeatFolded, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text(Strings.STATUS_FOLDED, color = SeatFoldedGray, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 } else if (player.status == PlayerStatus.ALL_IN) {
-                    Text("ALL-IN", color = SeatAllIn, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text(Strings.STATUS_ALL_IN, color = SeatAllInOrange, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
