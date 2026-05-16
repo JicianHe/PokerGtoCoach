@@ -127,7 +127,12 @@ class GameViewModel(
         playSfxFor(action)
 
         applyAction(action)
-        _pause.value = PauseState.HeroReview(action, rec, verdict)
+        // 若該行動直接結束本手（例：對手只剩一人被迫 fold、或進入 showdown），
+        // checkHandEnded 已將 pause 設為 HandComplete；此時不可覆蓋為 HeroReview，
+        // 否則使用者按「繼續」後會卡在 actorSeat=null 永久顯示「發牌中...」。
+        if (_pause.value !is PauseState.HandComplete) {
+            _pause.value = PauseState.HeroReview(action, rec, verdict)
+        }
     }
 
     fun continueAfterReview() {
@@ -185,7 +190,15 @@ class GameViewModel(
     private suspend fun driveAi() {
         while (true) {
             val st = _table.value
-            if (st.actorSeat == null) return
+            if (st.actorSeat == null) {
+                // 保險：若狀態機已輸出 HandEnded 但 pause 尚未同步（race / 早期覆寫），
+                // 在此補上 HandComplete，避免 UI 永久卡在「發牌中...」。
+                val ended = st.log.lastOrNull() as? GameEvent.HandEnded
+                if (ended != null && _pause.value !is PauseState.HandComplete) {
+                    _pause.value = PauseState.HandComplete(ended)
+                }
+                return
+            }
             if (st.actorSeat == heroSeat) {
                 updateHeroRecommendationIfPreflop()
                 return
