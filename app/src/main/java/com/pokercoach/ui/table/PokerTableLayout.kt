@@ -50,8 +50,7 @@ fun PokerTableLayout(
             .shadow(20.dp, RoundedCornerShape(percent = 50))
             .background(
                 brush = Brush.radialGradient(
-                    colors = listOf(FeltRailHi, FeltRail),
-                    radiusX = 1f
+                    colors = listOf(FeltRailHi, FeltRail)
                 ),
                 shape = RoundedCornerShape(percent = 50)
             )

@@ -35,7 +35,9 @@ app/src/main/java/com/pokercoach/
 ## Status
 
 - [x] Phase 1: Models + Preflop Range Engine
-- [ ] Phase 2
-- [ ] Phase 3
-- [ ] Phase 4
-- [ ] Phase 5
+- [x] Phase 2: Hand State Machine + AI Decision Engine
+- [x] Phase 3: Tablet UI Architecture (Compose, 3-column landscape)
+- [x] Phase 4: Strategy Coach HUD + Pause / Review Mechanism
+- [x] Phase 5: Integration, Gradle Build Files, Unit Tests
+
+See [`docs/BUILD.md`](docs/BUILD.md) for build & run instructions.
