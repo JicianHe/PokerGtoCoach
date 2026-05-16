@@ -236,64 +236,70 @@ object PreflopRangeManager {
     // BB vs BTN RFI 2.5bb — 整體防守 ~68%
     // =====================================================================
     private val BB_VS_BTN_RFI: Map<String, MixedStrategy> = buildMap {
+        // 對子：全 defend，弱對偶爾 3-bet bluff（混合）
         put("AA", MixedStrategy.PURE_RAISE)
         put("KK", MixedStrategy.PURE_RAISE)
         put("QQ", MixedStrategy.PURE_RAISE)
         put("JJ", callRaiseFold(0.20, 0.80))
         put("TT", callRaiseFold(0.40, 0.60))
         put("99", callRaiseFold(0.75, 0.25))
-        put("88", callRaiseFold(0.85, 0.15))
+        put("88", callRaiseFold(0.90, 0.10))
         listOf("77","66","55","44","33","22").forEach { put(it, call(1.0)) }
 
+        // Ax suited：A2s-A9s 全 defend，弱 Ax 為 3-bet bluff
         put("AKs", MixedStrategy.PURE_RAISE)
         put("AQs", callRaiseFold(0.10, 0.90))
         put("AJs", callRaiseFold(0.35, 0.65))
         put("ATs", callRaiseFold(0.60, 0.40))
         put("A9s", callRaiseFold(0.85, 0.15))
-        listOf("A8s","A7s","A6s","A2s").forEach { put(it, call(1.0)) }
+        put("A8s", call(1.0)); put("A7s", call(1.0)); put("A6s", call(1.0)); put("A2s", call(1.0))
         put("A5s", callRaiseFold(0.35, 0.65))
         put("A4s", callRaiseFold(0.45, 0.55))
         put("A3s", callRaiseFold(0.70, 0.30))
 
+        // Kx suited：K2s+ 全 defend
         put("KQs", callRaiseFold(0.45, 0.55))
         put("KJs", callRaiseFold(0.70, 0.30))
-        listOf("KTs","K9s","K8s","K7s").forEach { put(it, call(1.0)) }
-        put("K6s", call(0.95)); put("K5s", callRaiseFold(0.60, 0.20))
-        put("K4s", callRaiseFold(0.50, 0.15)); put("K3s", call(0.70)); put("K2s", call(0.60))
+        listOf("KTs","K9s","K8s","K7s","K6s","K5s","K4s","K3s","K2s").forEach { put(it, call(1.0)) }
 
+        // Qx suited：Q2s+ 全 defend
         put("QJs", callRaiseFold(0.70, 0.20))
-        listOf("QTs","Q9s","Q8s").forEach { put(it, call(1.0)) }
-        put("Q7s", call(0.90)); put("Q6s", call(0.80)); put("Q5s", call(0.70))
-        put("Q4s", call(0.55)); put("Q3s", call(0.40)); put("Q2s", call(0.25))
+        listOf("QTs","Q9s","Q8s","Q7s","Q6s","Q5s","Q4s","Q3s","Q2s").forEach { put(it, call(1.0)) }
 
+        // Jx suited：J3s+ defend
         put("JTs", callRaiseFold(0.65, 0.20))
-        listOf("J9s","J8s").forEach { put(it, call(1.0)) }
-        put("J7s", call(0.90)); put("J6s", call(0.70)); put("J5s", call(0.50)); put("J4s", call(0.30))
+        listOf("J9s","J8s","J7s","J6s","J5s","J4s","J3s").forEach { put(it, call(1.0)) }
 
-        listOf("T9s","T8s").forEach { put(it, call(1.0)) }
-        put("T7s", call(0.90)); put("T6s", call(0.65)); put("T5s", call(0.30))
-        listOf("98s","87s","76s","65s").forEach { put(it, call(1.0)) }
-        put("97s", call(0.95)); put("96s", call(0.75))
-        put("86s", call(0.85)); put("85s", call(0.45))
-        put("75s", call(0.80)); put("74s", call(0.35))
-        put("64s", call(0.70))
-        put("54s", callRaiseFold(0.55, 0.25))
-        put("53s", call(0.60)); put("43s", call(0.55))
+        // Tx 與 connectors / one-gappers suited：廣 defend
+        listOf("T9s","T8s","T7s","T6s","T5s","T4s").forEach { put(it, call(1.0)) }
+        listOf("98s","97s","96s","95s").forEach { put(it, call(1.0)) }
+        listOf("87s","86s","85s","84s").forEach { put(it, call(1.0)) }
+        listOf("76s","75s","74s").forEach { put(it, call(1.0)) }
+        listOf("65s","64s","63s").forEach { put(it, call(1.0)) }
+        put("54s", callRaiseFold(0.70, 0.20))
+        listOf("53s","52s","43s","42s","32s").forEach { put(it, call(1.0)) }
 
+        // Offsuit：A2o+/K8o+/Q9o+/J9o+/T9o/98o 等廣 defend
         put("AKo", callRaiseFold(0.20, 0.80))
         put("AQo", callRaiseFold(0.50, 0.50))
         put("AJo", callRaiseFold(0.80, 0.20))
-        listOf("ATo","A4o","A3o","A2o").forEach { put(it, call(1.0)) }
-        put("A9o", call(0.90)); put("A8o", call(0.75)); put("A7o", call(0.60)); put("A6o", call(0.45))
-        put("A5o", callRaiseFold(0.45, 0.20))
+        listOf("ATo","A9o","A8o","A7o","A6o","A4o","A3o","A2o").forEach { put(it, call(1.0)) }
+        put("A5o", callRaiseFold(0.70, 0.20))
         put("KQo", callRaiseFold(0.75, 0.20))
-        put("KJo", call(1.0)); put("KTo", call(0.95))
-        put("K9o", call(0.75)); put("K8o", call(0.45)); put("K7o", call(0.25))
-        put("QJo", call(1.0)); put("QTo", call(0.95)); put("Q9o", call(0.65)); put("Q8o", call(0.35))
-        put("JTo", call(1.0)); put("J9o", call(0.75)); put("J8o", call(0.40))
-        put("T9o", call(0.90)); put("T8o", call(0.55))
-        put("98o", call(0.70)); put("97o", call(0.35))
-        put("87o", call(0.55)); put("76o", call(0.40)); put("65o", call(0.30))
+        listOf("KJo","KTo","K9o","K8o","K7o","K6o","K5o").forEach { put(it, call(1.0)) }
+        put("K4o", call(0.70)); put("K3o", call(0.50)); put("K2o", call(0.35))
+        listOf("QJo","QTo","Q9o","Q8o","Q7o").forEach { put(it, call(1.0)) }
+        put("Q6o", call(0.70)); put("Q5o", call(0.45))
+        listOf("JTo","J9o","J8o","J7o").forEach { put(it, call(1.0)) }
+        put("J6o", call(0.55))
+        listOf("T9o","T8o","T7o").forEach { put(it, call(1.0)) }
+        put("T6o", call(0.50))
+        listOf("98o","97o","96o").forEach { put(it, call(1.0)) }
+        put("87o", call(1.0)); put("86o", call(0.80))
+        put("76o", call(1.0)); put("75o", call(0.70))
+        put("65o", call(1.0)); put("64o", call(0.55))
+        put("54o", call(0.90)); put("53o", call(0.50))
+        put("43o", call(0.55))
     }
 
     // =====================================================================
