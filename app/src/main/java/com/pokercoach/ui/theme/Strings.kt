@@ -204,12 +204,23 @@ object Strings {
     }
 
     // ===== HUD 點評文案 =====
+    /** 把混合策略寫成 "加注 60% / 跟注 40%" 這種摘要。 */
+    fun explainStrategySummary(rec: com.pokercoach.core.ev.EvCalculator.Recommendation): String {
+        val s = rec.strategy
+        val parts = buildList {
+            if (s.raise > 0) add("$RAISE ${(s.raise * 100).toInt()}%")
+            if (s.call  > 0) add("$CALL ${(s.call * 100).toInt()}%")
+            if (s.check > 0) add("$CHECK ${(s.check * 100).toInt()}%")
+            if (s.fold  > 0) add("$FOLD ${(s.fold * 100).toInt()}%")
+        }
+        return parts.joinToString(" / ")
+    }
+
     fun verdictExplain(
         verdict: VerdictLevel,
         chosen: com.pokercoach.core.model.Action.Kind,
         rec: com.pokercoach.core.ev.EvCalculator.Recommendation
-    ): String {
-        val pct = (rec.strategy.frequencyOf(chosen) * 100).toInt()
+    ): String {        val pct = (rec.strategy.frequencyOf(chosen) * 100).toInt()
         val dom = actionLabelByKind(rec.recommendedAction)
         val ch = actionLabelByKind(chosen)
         return when (verdict) {

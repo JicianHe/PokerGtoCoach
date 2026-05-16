@@ -1,6 +1,7 @@
 package com.pokercoach.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,6 +26,7 @@ import com.pokercoach.ui.theme.HudBg
 import com.pokercoach.ui.theme.HudPanel
 import com.pokercoach.ui.theme.HudTextDim
 import com.pokercoach.ui.theme.HudTextPrimary
+import com.pokercoach.ui.theme.Strings
 import com.pokercoach.viewmodel.GameViewModel
 
 /**
@@ -37,7 +40,7 @@ import com.pokercoach.viewmodel.GameViewModel
  * 在其他平板上也能優雅縮放。
  */
 @Composable
-fun GameScreen(vm: GameViewModel) {
+fun GameScreen(vm: GameViewModel, onBack: () -> Unit = {}) {
     val state by vm.table.collectAsState()
     val pause by vm.pause.collectAsState()
     val recommendation by vm.heroRecommendation.collectAsState()
@@ -56,13 +59,24 @@ fun GameScreen(vm: GameViewModel) {
                 .background(HudBg)
                 .padding(12.dp)
         ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "‹ ${Strings.BACK}",
+                    color = HudTextDim, fontSize = 13.sp,
+                    modifier = Modifier
+                        .background(HudPanel, RoundedCornerShape(10.dp))
+                        .pointerInput(Unit) { detectTapGestures(onTap = { onBack() }) }
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                )
+            }
+            Spacer(Modifier.height(10.dp))
             Text(
-                "Hand #${state.handNumber}",
+                "第 ${state.handNumber} 手",
                 color = HudTextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold
             )
             Spacer(Modifier.height(2.dp))
             Text(
-                state.street.name,
+                Strings.street(state.street),
                 color = HudTextDim, fontSize = 13.sp
             )
             Spacer(Modifier.height(12.dp))
@@ -128,7 +142,7 @@ private fun BottomActionArea(
                     .background(HudPanel, RoundedCornerShape(16.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Hand complete — see review on the right →",
+                Text("本手結束 — 右側查看點評 →",
                     color = HudTextDim, fontSize = 16.sp)
             }
         }
@@ -140,7 +154,6 @@ private fun BottomActionArea(
             )
         }
         else -> {
-            // AI 行動中或玩家回顧中 → 顯示狀態提示
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -149,9 +162,9 @@ private fun BottomActionArea(
                 contentAlignment = Alignment.Center
             ) {
                 val label = when {
-                    pause is GameViewModel.PauseState.HeroReview -> "Reviewing your decision — tap Continue →"
-                    state.actorSeat == null -> "Dealing..."
-                    else -> "${state.players.first { it.seatIndex == state.actorSeat }.name} is thinking..."
+                    pause is GameViewModel.PauseState.HeroReview -> "點評你的決策中 — 點繼續 →"
+                    state.actorSeat == null -> "發牌中..."
+                    else -> "${state.players.first { it.seatIndex == state.actorSeat }.name} 思考中..."
                 }
                 Text(label, color = HudTextDim, fontSize = 16.sp)
             }
@@ -164,12 +177,12 @@ private fun HandLog(events: List<GameEvent>) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         items(events.reversed()) { ev ->
             val text = when (ev) {
-                is GameEvent.HandStarted -> "▶ Hand #${ev.handNumber} (BTN seat ${ev.buttonSeat})"
-                is GameEvent.BlindsPosted -> "  SB=${ev.sb}bb seat${ev.sbSeat} • BB=${ev.bb}bb seat${ev.bbSeat}"
-                is GameEvent.HoleCardsDealt -> "  Hole cards dealt"
-                is GameEvent.StreetDealt -> "── ${ev.street} ${ev.newBoardCards.joinToString(" ")}"
-                is GameEvent.ActionTaken -> "  seat${ev.seat}: ${ev.action}  (pot=${"%.1f".format(ev.potAfter)})"
-                is GameEvent.HandEnded -> "★ Winners: ${ev.winners} (${ev.reason})"
+                is GameEvent.HandStarted -> "▶ 第 ${ev.handNumber} 手 (BTN 座${ev.buttonSeat})"
+                is GameEvent.BlindsPosted -> "  SB=${ev.sb}bb 座${ev.sbSeat} • BB=${ev.bb}bb 座${ev.bbSeat}"
+                is GameEvent.HoleCardsDealt -> "  發底牌"
+                is GameEvent.StreetDealt -> "── ${Strings.street(ev.street)} ${ev.newBoardCards.joinToString(" ")}"
+                is GameEvent.ActionTaken -> "  座${ev.seat}: ${Strings.actionLabel(ev.action)}  (底池 ${"%.1f".format(ev.potAfter)})"
+                is GameEvent.HandEnded -> "★ 贏家: ${Strings.winners(ev.winners)} (${ev.reason})"
             }
             val color = when (ev) {
                 is GameEvent.HandStarted, is GameEvent.HandEnded -> HudTextPrimary
