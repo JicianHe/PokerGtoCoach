@@ -132,6 +132,42 @@ object Strings {
     const val APP_NAME = "撲克 GTO 教練"
     const val BACK = "返回"
 
+    // ===== 開場教學 =====
+    const val ONBOARDING_TITLE = "歡迎來到 GTO 教練"
+    const val ONBOARDING_SKIP = "略過"
+    const val ONBOARDING_NEXT = "下一步 ›"
+    const val ONBOARDING_DONE = "開始學習"
+
+    data class OnboardingPage(val title: String, val body: String, val emoji: String)
+
+    val ONBOARDING_PAGES: List<OnboardingPage> = listOf(
+        OnboardingPage(
+            emoji = "✈",
+            title = "什麼是 GTO？",
+            body = "Game Theory Optimal（賽局理論最優）——一套讓對手無法剝削你的均衡策略。" +
+                    "這款教練會在每個決策點顯示 GTO 推薦頻率與 EV，幫你內化撲克思考方式。"
+        ),
+        OnboardingPage(
+            emoji = "❤",
+            title = "自由對戰 + 即時點評",
+            body = "與五位 AI 對手（含 GTO 基準、TAG、LAG、Nit、跟注站）對戰。" +
+                    "每次輪到你行動，HUD 會顯示 GTO 策略分佈、EV、底池賠率。" +
+                    "你出手後立即給出評價（最佳／可接受／次佳／失誤）。"
+        ),
+        OnboardingPage(
+            emoji = "★",
+            title = "情境訓練 — 翻前 + 翻後",
+            body = "翻前隨機題：169 種起手牌 × 多種情境，重複練到形成肌肉記憶。" +
+                    "翻後 30+ 道精選題：頂對、暗三條、同花 draw、bluff catcher 等核心場景。"
+        ),
+        OnboardingPage(
+            emoji = "☁",
+            title = "範圍視覺化 + 學習統計",
+            body = "13×13 範圍圖：直觀看每種起手牌的 GTO 加注/跟注/蓋牌頻率。" +
+                    "統計頁追蹤你的最佳率、失誤率、依位置別表現，幫你找出弱項。"
+        )
+    )
+
     // ===== 設定 =====
     const val SETTINGS_SOUND = "音效"
     const val SETTINGS_HAPTIC = "震動回饋"

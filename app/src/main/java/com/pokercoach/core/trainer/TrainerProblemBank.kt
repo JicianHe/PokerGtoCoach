@@ -340,6 +340,286 @@ object TrainerProblemBank {
             potBb = 6.5, toCallBb = 3.0,
             correctAction = Action.Kind.RAISE,
             explanation = "Backdoor flush + straight draw 是優質 bluff raise 候選，藍圖 equity 加上折疊權。"
+        ),
+        // ==== 補充題 31-60：涵蓋更多翻後場景 ====
+        PostflopProblem(
+            title = "Turn 第二街二次 barrel",
+            scenario = "你翻牌 c-bet 被 call，轉牌補出 draw card。",
+            heroPosition = Position.BTN,
+            heroHand = "Ah Qh", board = "Qd 7c 3s 5h",
+            potBb = 12.0, toCallBb = 0.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "Top pair top kicker 在不改變範圍對比的轉牌，價值下注以對抗對手中對與 draws。"
+        ),
+        PostflopProblem(
+            title = "面對 turn check-raise",
+            scenario = "你 turn barrel，對手 check-raise。",
+            heroPosition = Position.CO,
+            heroHand = "Ah Kc", board = "Kd 8h 4c 2d",
+            potBb = 18.0, toCallBb = 12.0,
+            correctAction = Action.Kind.CALL,
+            explanation = "Top pair top kicker 雖被 check-raise，但無 draw 結構板對手範圍含 bluff，跟注看河牌。"
+        ),
+        PostflopProblem(
+            title = "河牌 thin value",
+            scenario = "河牌乾燥未變，你有中對。",
+            heroPosition = Position.BTN,
+            heroHand = "Jh Tc", board = "Jd 8s 3c 2h 5d",
+            potBb = 14.0, toCallBb = 0.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "中對 top kicker 對 BB call 範圍中的弱對與 underpair 可薄價值 1/3 pot。"
+        ),
+        PostflopProblem(
+            title = "河牌過牌讓對手詐唬",
+            scenario = "河牌補同花，你有 overpair 無同花。",
+            heroPosition = Position.UTG,
+            heroHand = "Qh Qd", board = "9h 7h 4c 2s Ah",
+            potBb = 20.0, toCallBb = 0.0,
+            correctAction = Action.Kind.CHECK,
+            explanation = "雙重危險牌（A + flush）, QQ 變 bluff catcher，過牌讓對手錯誤詐唬。"
+        ),
+        PostflopProblem(
+            title = "Double barrel turn 補出 A",
+            scenario = "你翻牌 c-bet 被 call，轉牌補 A。",
+            heroPosition = Position.CO,
+            heroHand = "Ad Kd", board = "Tc 7h 3c Ah",
+            potBb = 11.0, toCallBb = 0.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "Range advantage card（A 出現有利 PFR 範圍），continued barrel 賺價值並 fold equity。"
+        ),
+        PostflopProblem(
+            title = "Set on draw-heavy turn",
+            scenario = "翻牌 set，轉牌補同花 draw。",
+            heroPosition = Position.HJ,
+            heroHand = "7c 7d", board = "Th 7s 4c Kh",
+            potBb = 10.0, toCallBb = 0.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "Set 在濕板必須持續 sizing 來收 draw 價值並保護，2/3 pot+。"
+        ),
+        PostflopProblem(
+            title = "弱頂對 vs OOP donk bet",
+            scenario = "BB 在翻牌主動下注（donk）。",
+            heroPosition = Position.BTN,
+            heroHand = "Kh 9c", board = "9d 7s 5h",
+            potBb = 6.5, toCallBb = 3.0,
+            correctAction = Action.Kind.CALL,
+            explanation = "弱頂對對 donk 範圍有充足勝率，但 raise 把對手弱對逐出反而虧損；call 控池。"
+        ),
+        PostflopProblem(
+            title = "Overcards 河牌 hero call",
+            scenario = "河牌對手大注，你只有兩張 overcards。",
+            heroPosition = Position.BB,
+            heroHand = "Ad Kc", board = "9h 8c 3d 2s 6h",
+            potBb = 22.0, toCallBb = 18.0,
+            correctAction = Action.Kind.FOLD,
+            explanation = "Ace-high 在面對河牌大注（pot odds 需要 ~45%）幾乎不可能贏，乾淨 fold。"
+        ),
+        PostflopProblem(
+            title = "Wet flop heads-up c-bet 選擇",
+            scenario = "BB call 你的 open，翻牌兩同花+順子可能。",
+            heroPosition = Position.CO,
+            heroHand = "Ad Ah", board = "Th 9h 8c",
+            potBb = 7.0, toCallBb = 0.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "Overpair 在濕板必須以 75-100% pot bet 保護，避免被 draws 免費補。"
+        ),
+        PostflopProblem(
+            title = "Slowplay 翻牌堅果順",
+            scenario = "你 BB defend，翻牌打出順子。",
+            heroPosition = Position.BB,
+            heroHand = "Jh Tc", board = "Qh 9s 8d",
+            potBb = 5.5, toCallBb = 0.0,
+            correctAction = Action.Kind.CHECK,
+            explanation = "OOP 堅果順 check-raise 給對手 c-bet 機會，建立翻牌 raise 範圍含 set+順。"
+        ),
+        PostflopProblem(
+            title = "Flush draw + overpair",
+            scenario = "你 IP raise 翻前，翻牌補同花 draw 還有 overpair。",
+            heroPosition = Position.BTN,
+            heroHand = "Kh Kc", board = "Th 7h 2c",
+            potBb = 7.0, toCallBb = 0.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "Overpair + backdoor draws 在濕板 bet 70% pot 保護並收 draws 價值。"
+        ),
+        PostflopProblem(
+            title = "Bottom pair multiway",
+            scenario = "翻牌三人看牌，你打底對。",
+            heroPosition = Position.BTN,
+            heroHand = "8c 7c", board = "Kd 9h 7s",
+            potBb = 9.0, toCallBb = 4.5,
+            correctAction = Action.Kind.FOLD,
+            explanation = "Multiway 底對勝率約 25%，無 draw 結構；面對 1/2 pot 需 33% equity，乾淨蓋。"
+        ),
+        PostflopProblem(
+            title = "Gutshot + overcard",
+            scenario = "翻牌補 gutshot + overcard。",
+            heroPosition = Position.BB,
+            heroHand = "Ah 8h", board = "9c 7s 4d",
+            potBb = 7.5, toCallBb = 3.0,
+            correctAction = Action.Kind.CALL,
+            explanation = "Gutshot 4 outs + ace high overcards ≈ 18% equity；pot odds 需 28%，邊際但 IP 控池可跟。"
+        ),
+        PostflopProblem(
+            title = "C-bet 範圍下注小尺度",
+            scenario = "BTN open BB call，翻牌 K 高乾燥。",
+            heroPosition = Position.BTN,
+            heroHand = "5d 5c", board = "Kh 8d 3c",
+            potBb = 5.5, toCallBb = 0.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "K 高板有極大範圍優勢，PFR 用 25-33% pot bet 範圍下注賺薄價值。"
+        ),
+        PostflopProblem(
+            title = "面對 polar 河牌下注",
+            scenario = "河牌補 backdoor flush，對手下大注（polar）。",
+            heroPosition = Position.BTN,
+            heroHand = "Ah As", board = "Kd 8c 3h 5d 2c",
+            potBb = 30.0, toCallBb = 25.0,
+            correctAction = Action.Kind.CALL,
+            explanation = "AA 是強 bluff catcher；對手 polar 下注（價值/詐唬），AA 勝過所有純詐唬。"
+        ),
+        PostflopProblem(
+            title = "Turn semibluff raise",
+            scenario = "你 BB defend，turn 補 OESD + flush draw。",
+            heroPosition = Position.BB,
+            heroHand = "9h 8h", board = "7s 6h 2c Kh",
+            potBb = 8.0, toCallBb = 6.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "Combo draw (15+ outs ~55%) 加 fold equity，turn check-raise 是高 EV 線。"
+        ),
+        PostflopProblem(
+            title = "River value bet sizing",
+            scenario = "你打出強牌，河牌乾燥未變。",
+            heroPosition = Position.CO,
+            heroHand = "Ad Ah", board = "Kd 8c 3h 2s 4d",
+            potBb = 18.0, toCallBb = 0.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "Overpair 在不變的河牌可 thin value 1/3 pot，抽出對手中對與弱 K。"
+        ),
+        PostflopProblem(
+            title = "Turn give-up 決策",
+            scenario = "你翻牌 c-bet 被 call，turn 補對手 draw card。",
+            heroPosition = Position.UTG,
+            heroHand = "Ah Qd", board = "Jh 8s 3c Th",
+            potBb = 11.0, toCallBb = 0.0,
+            correctAction = Action.Kind.CHECK,
+            explanation = "Equity 下降（對手補 set/順子/同花 draw），give up 比 barrel 更省 bb。"
+        ),
+        PostflopProblem(
+            title = "BvB SB open BB 3-bet pot 翻牌",
+            scenario = "SB open BB 3-bet you call，翻牌中。",
+            heroPosition = Position.SB,
+            heroHand = "Ad Kd", board = "Qh 7c 3s",
+            potBb = 22.0, toCallBb = 0.0,
+            correctAction = Action.Kind.CHECK,
+            explanation = "3-bet 底池 OOP 對未擊中板大量 check，將決策權交給 IP。"
+        ),
+        PostflopProblem(
+            title = "翻牌 nut flush draw",
+            scenario = "你有堅果同花 draw + 兩 overcards。",
+            heroPosition = Position.BB,
+            heroHand = "Ah 5h", board = "Qh 7h 3c",
+            potBb = 7.0, toCallBb = 3.5,
+            correctAction = Action.Kind.RAISE,
+            explanation = "Nut flush draw (~36% 兩街) + 2 overcards + fold equity = 高 EV check-raise。"
+        ),
+        PostflopProblem(
+            title = "Set 翻牌 vs all-in 風險",
+            scenario = "深堆 set 翻牌，對手 raise pot。",
+            heroPosition = Position.BTN,
+            heroHand = "5c 5d", board = "5s Qh Jc",
+            potBb = 15.0, toCallBb = 10.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "Set 在動態板要趁早把錢推進，3-bet shove 對抗 draws 與 over pairs。"
+        ),
+        PostflopProblem(
+            title = "Turn check-raise blocker bet",
+            scenario = "Turn 對手小 blocker bet，你有中對。",
+            heroPosition = Position.BTN,
+            heroHand = "Tc 9c", board = "Td 7s 4c 2h",
+            potBb = 12.0, toCallBb = 3.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "小 blocker bet 範圍上限薄弱，中對 raise 為 thin value + fold equity。"
+        ),
+        PostflopProblem(
+            title = "River 對手過牌讓你下注",
+            scenario = "河牌對手 check，你有 second pair。",
+            heroPosition = Position.BTN,
+            heroHand = "Qh Jc", board = "Ad Jh 7c 2s 5d",
+            potBb = 10.0, toCallBb = 0.0,
+            correctAction = Action.Kind.CHECK,
+            explanation = "Second pair on A-high river 應 check back 控池；下注只被更強跟，更弱蓋。"
+        ),
+        PostflopProblem(
+            title = "Overpair 在 multiway",
+            scenario = "三人翻牌，你 overpair。",
+            heroPosition = Position.HJ,
+            heroHand = "Jh Jd", board = "9c 7s 4h",
+            potBb = 12.0, toCallBb = 0.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "Multiway overpair 必須 c-bet 保護，否則被多 draws 免費補；70% pot bet。"
+        ),
+        PostflopProblem(
+            title = "Paired board 河牌反詐",
+            scenario = "河牌補對，對手下大注。",
+            heroPosition = Position.BB,
+            heroHand = "Ah Kc", board = "Kd 8c 3h 8d 2c",
+            potBb = 20.0, toCallBb = 16.0,
+            correctAction = Action.Kind.CALL,
+            explanation = "Top pair top kicker 雖未變動，補對讓對手 8x 變強；但 KK/AA blocker 在 hero，跟注。"
+        ),
+        PostflopProblem(
+            title = "Squeeze 後翻牌乾燥",
+            scenario = "你翻前 squeeze 成功，翻牌乾燥未擊中。",
+            heroPosition = Position.SB,
+            heroHand = "Ah Qd", board = "8c 5h 2s",
+            potBb = 25.0, toCallBb = 0.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "Squeeze pot 範圍優勢明顯，翻牌 1/3 pot c-bet 高頻收 fold equity。"
+        ),
+        PostflopProblem(
+            title = "Draw heavy 板 check-call",
+            scenario = "翻牌極濕你有頂對中 kicker。",
+            heroPosition = Position.BB,
+            heroHand = "Kc 9h", board = "Kh Qh Th",
+            potBb = 6.5, toCallBb = 4.5,
+            correctAction = Action.Kind.CALL,
+            explanation = "頂對在 monotone + connected 板僅勝過詐唬，raise 被 fold 出更強範圍；call 控池。"
+        ),
+        PostflopProblem(
+            title = "ABC turn polarized bet",
+            scenario = "Turn 補出對手 draw card，你有頂兩對。",
+            heroPosition = Position.BTN,
+            heroHand = "Ah Qd", board = "Qh 7s 3c Kd",
+            potBb = 12.0, toCallBb = 0.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "頂兩對在 turn 仍是強牌，pot-size bet 賺價值並折出弱對與 draws。"
+        ),
+        PostflopProblem(
+            title = "Bluff catcher 河牌極化",
+            scenario = "河牌乾燥對手 overbet。",
+            heroPosition = Position.BTN,
+            heroHand = "Ad Jh", board = "Jc 8s 3h 2c 7d",
+            potBb = 18.0, toCallBb = 20.0,
+            correctAction = Action.Kind.CALL,
+            explanation = "Top pair top kicker，pot odds 需要 ~36% equity；對 polar overbet 範圍仍有 EV。"
+        ),
+        PostflopProblem(
+            title = "Mid pair vs three barrel",
+            scenario = "對手連續三街下注，你有中對。",
+            heroPosition = Position.BTN,
+            heroHand = "9h 9c", board = "Kd 7s 4h 2c 6d",
+            potBb = 25.0, toCallBb = 20.0,
+            correctAction = Action.Kind.FOLD,
+            explanation = "中對對 triple barrel 範圍幾乎只勝詐唬，pot odds 33% 不夠；蓋牌。"
+        ),
+        PostflopProblem(
+            title = "翻前 4-bet pot 翻牌 set",
+            scenario = "你 4-bet AA call，翻牌補 set。",
+            heroPosition = Position.CO,
+            heroHand = "5c 5d", board = "5s Kh 2c",
+            potBb = 45.0, toCallBb = 0.0,
+            correctAction = Action.Kind.RAISE,
+            explanation = "Set 在深堆 4-bet pot 必須開始 build pot；50% pot bet。"
         )
     )
 }

@@ -34,7 +34,8 @@ class SettingsRepository(private val context: Context) {
         val soundOn: Boolean = true,
         val hapticOn: Boolean = true,
         val animationsOn: Boolean = true,
-        val difficulty: Difficulty = Difficulty.MIXED_PROFILES
+        val difficulty: Difficulty = Difficulty.MIXED_PROFILES,
+        val onboardingSeen: Boolean = false
     )
 
     private object Keys {
@@ -42,6 +43,7 @@ class SettingsRepository(private val context: Context) {
         val HAPTIC    = booleanPreferencesKey("haptic")
         val ANIM      = booleanPreferencesKey("anim")
         val DIFFICULTY = stringPreferencesKey("difficulty")
+        val ONBOARDING_SEEN = booleanPreferencesKey("onboarding_seen")
     }
 
     val settingsFlow: Flow<Settings> = context.settingsDataStore.data
@@ -51,7 +53,8 @@ class SettingsRepository(private val context: Context) {
                 soundOn = prefs[Keys.SOUND] ?: true,
                 hapticOn = prefs[Keys.HAPTIC] ?: true,
                 animationsOn = prefs[Keys.ANIM] ?: true,
-                difficulty = Difficulty.fromKey(prefs[Keys.DIFFICULTY])
+                difficulty = Difficulty.fromKey(prefs[Keys.DIFFICULTY]),
+                onboardingSeen = prefs[Keys.ONBOARDING_SEEN] ?: false
             )
         }
 
@@ -63,6 +66,8 @@ class SettingsRepository(private val context: Context) {
         context.settingsDataStore.edit { it[Keys.ANIM] = on }
     suspend fun setDifficulty(d: Difficulty) =
         context.settingsDataStore.edit { it[Keys.DIFFICULTY] = d.storeKey }
+    suspend fun markOnboardingSeen() =
+        context.settingsDataStore.edit { it[Keys.ONBOARDING_SEEN] = true }
 
     suspend fun reset() {
         context.settingsDataStore.edit { it.clear() }

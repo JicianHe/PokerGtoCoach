@@ -10,8 +10,8 @@ class TrainerProblemBankTest {
 
     @Test fun postflopBankHasContent() {
         assertTrue(
-            "Expected at least 20 postflop problems",
-            TrainerProblemBank.POSTFLOP_PROBLEMS.size >= 20
+            "Expected at least 50 postflop problems",
+            TrainerProblemBank.POSTFLOP_PROBLEMS.size >= 50
         )
     }
 

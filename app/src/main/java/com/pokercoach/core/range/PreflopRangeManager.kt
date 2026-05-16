@@ -448,38 +448,143 @@ object PreflopRangeManager {
     }
 
     // =====================================================================
-    // SB vs BTN RFI 2.5bb — 反向 squeeze 範圍
+    // SB vs BTN RFI 2.5bb — BTN 開池範圍最寬，SB 防守也較寬（~28-32%）
     // =====================================================================
     private val SB_VS_BTN_RFI: Map<String, MixedStrategy> = buildMap {
+        // 對子
         put("AA", MixedStrategy.PURE_RAISE); put("KK", MixedStrategy.PURE_RAISE)
         put("QQ", MixedStrategy.PURE_RAISE)
-        put("JJ", callRaiseFold(0.0, 1.0))
-        put("TT", callRaiseFold(0.10, 0.90))
-        put("99", callRaiseFold(0.55, 0.45))
-        put("88", callRaiseFold(0.80, 0.15))
-        listOf("77","66","55","44","33","22").forEach { put(it, call(0.90)) }
+        put("JJ", MixedStrategy.PURE_RAISE)
+        put("TT", callRaiseFold(0.05, 0.90))
+        put("99", callRaiseFold(0.40, 0.55))
+        put("88", callRaiseFold(0.70, 0.25))
+        put("77", call(0.90)); put("66", call(0.85)); put("55", call(0.75))
+        put("44", call(0.65)); put("33", call(0.55)); put("22", call(0.50))
+
+        // Ax suited
+        put("AKs", MixedStrategy.PURE_RAISE)
+        put("AQs", MixedStrategy.PURE_RAISE)
+        put("AJs", callRaiseFold(0.20, 0.75))
+        put("ATs", callRaiseFold(0.40, 0.55))
+        put("A9s", call(0.85)); put("A8s", call(0.70)); put("A7s", call(0.55))
+        put("A6s", call(0.50)); put("A2s", call(0.45))
+        put("A5s", callRaiseFold(0.30, 0.55))
+        put("A4s", callRaiseFold(0.45, 0.40))
+        put("A3s", call(0.85))
+
+        // Kx suited
+        put("KQs", callRaiseFold(0.30, 0.65))
+        put("KJs", callRaiseFold(0.55, 0.35))
+        put("KTs", call(0.95)); put("K9s", call(0.75)); put("K8s", call(0.55))
+        put("K7s", call(0.45)); put("K6s", call(0.40)); put("K5s", call(0.35))
+        put("K4s", call(0.30)); put("K3s", call(0.25)); put("K2s", call(0.20))
+
+        // Qx suited
+        put("QJs", callRaiseFold(0.60, 0.25))
+        put("QTs", call(0.95)); put("Q9s", call(0.70)); put("Q8s", call(0.50))
+        put("Q7s", call(0.35)); put("Q6s", call(0.30)); put("Q5s", call(0.25))
+        put("Q4s", call(0.20))
+
+        // Jx / Tx / 中聯結同花
+        put("JTs", callRaiseFold(0.60, 0.25))
+        put("J9s", call(0.85)); put("J8s", call(0.55)); put("J7s", call(0.35))
+        put("T9s", call(0.85)); put("T8s", call(0.60)); put("T7s", call(0.30))
+        put("98s", call(0.80)); put("97s", call(0.50)); put("87s", call(0.65))
+        put("86s", call(0.40)); put("76s", call(0.60)); put("75s", call(0.35))
+        put("65s", call(0.50)); put("64s", call(0.30))
+        put("54s", call(0.50)); put("43s", call(0.30))
+
+        // Offsuit
+        put("AKo", callRaiseFold(0.10, 0.90))
+        put("AQo", callRaiseFold(0.30, 0.65))
+        put("AJo", call(0.85)); put("ATo", call(0.65))
+        put("A9o", call(0.45)); put("A8o", call(0.30)); put("A5o", call(0.30))
+        put("KQo", call(0.95)); put("KJo", call(0.65)); put("KTo", call(0.45))
+        put("K9o", call(0.25))
+        put("QJo", call(0.75)); put("QTo", call(0.45))
+        put("JTo", call(0.65)); put("J9o", call(0.30))
+        put("T9o", call(0.45)); put("98o", call(0.30))
+    }
+
+    // =====================================================================
+    // SB vs CO RFI 2.5bb — 比 vs BTN 更緊（CO 範圍較強）
+    // 整體 defend ~22-28%
+    // =====================================================================
+    private val SB_VS_CO_RFI: Map<String, MixedStrategy> = buildMap {
+        put("AA", MixedStrategy.PURE_RAISE); put("KK", MixedStrategy.PURE_RAISE)
+        put("QQ", MixedStrategy.PURE_RAISE)
+        put("JJ", MixedStrategy.PURE_RAISE)
+        put("TT", callRaiseFold(0.10, 0.85))
+        put("99", callRaiseFold(0.45, 0.50))
+        put("88", callRaiseFold(0.75, 0.20))
+        put("77", call(0.85)); put("66", call(0.75)); put("55", call(0.65))
+        put("44", call(0.55)); put("33", call(0.45)); put("22", call(0.40))
 
         put("AKs", MixedStrategy.PURE_RAISE)
         put("AQs", MixedStrategy.PURE_RAISE)
-        put("AJs", callRaiseFold(0.20, 0.80))
-        put("ATs", callRaiseFold(0.50, 0.50))
-        put("A9s", call(0.85))
-        put("A5s", callRaiseFold(0.30, 0.55))
-        put("A4s", callRaiseFold(0.45, 0.40))
+        put("AJs", callRaiseFold(0.15, 0.80))
+        put("ATs", callRaiseFold(0.40, 0.55))
+        put("A9s", call(0.75))
+        put("A8s", call(0.55)); put("A7s", call(0.45))
+        put("A6s", call(0.40)); put("A2s", call(0.35))
+        put("A5s", callRaiseFold(0.25, 0.55))
+        put("A4s", callRaiseFold(0.40, 0.40))
+        put("A3s", call(0.85))
 
-        put("KQs", callRaiseFold(0.30, 0.65))
-        put("KJs", callRaiseFold(0.60, 0.30))
-        put("KTs", call(0.95)); put("K9s", call(0.70))
+        put("KQs", callRaiseFold(0.25, 0.65))
+        put("KJs", callRaiseFold(0.55, 0.30))
+        put("KTs", call(0.85)); put("K9s", call(0.55))
+        put("K8s", call(0.40)); put("K7s", call(0.30))
 
-        put("QJs", callRaiseFold(0.65, 0.20))
-        put("QTs", call(0.95)); put("JTs", callRaiseFold(0.65, 0.20))
-        put("T9s", call(0.85)); put("98s", call(0.75)); put("87s", call(0.55))
-        put("65s", call(0.45))
+        put("QJs", callRaiseFold(0.55, 0.25))
+        put("QTs", call(0.85)); put("Q9s", call(0.55)); put("Q8s", call(0.35))
+        put("JTs", callRaiseFold(0.55, 0.25)); put("J9s", call(0.70)); put("J8s", call(0.40))
+        put("T9s", call(0.75)); put("T8s", call(0.45))
+        put("98s", call(0.65)); put("87s", call(0.45)); put("76s", call(0.35))
+        put("65s", call(0.30))
 
-        put("AKo", callRaiseFold(0.10, 0.90))
-        put("AQo", callRaiseFold(0.35, 0.55))
-        put("AJo", call(0.80)); put("ATo", call(0.55))
-        put("KQo", call(0.90)); put("KJo", call(0.50))
+        put("AKo", callRaiseFold(0.10, 0.85))
+        put("AQo", callRaiseFold(0.25, 0.65))
+        put("AJo", call(0.65)); put("ATo", call(0.40))
+        put("KQo", call(0.75)); put("KJo", call(0.35))
+        put("QJo", call(0.30))
+    }
+
+    // =====================================================================
+    // SB vs HJ RFI 2.5bb — 比 vs CO 又更緊（HJ 範圍最強）
+    // 整體 defend ~18-22%
+    // =====================================================================
+    private val SB_VS_HJ_RFI: Map<String, MixedStrategy> = buildMap {
+        put("AA", MixedStrategy.PURE_RAISE); put("KK", MixedStrategy.PURE_RAISE)
+        put("QQ", MixedStrategy.PURE_RAISE); put("JJ", MixedStrategy.PURE_RAISE)
+        put("TT", callRaiseFold(0.05, 0.90))
+        put("99", callRaiseFold(0.35, 0.55))
+        put("88", callRaiseFold(0.65, 0.25))
+        put("77", call(0.75)); put("66", call(0.60)); put("55", call(0.50))
+        put("44", call(0.40)); put("33", call(0.30)); put("22", call(0.25))
+
+        put("AKs", MixedStrategy.PURE_RAISE)
+        put("AQs", MixedStrategy.PURE_RAISE)
+        put("AJs", callRaiseFold(0.10, 0.85))
+        put("ATs", callRaiseFold(0.30, 0.60))
+        put("A9s", call(0.55)); put("A8s", call(0.40))
+        put("A5s", callRaiseFold(0.20, 0.55))
+        put("A4s", callRaiseFold(0.35, 0.40))
+
+        put("KQs", callRaiseFold(0.20, 0.65))
+        put("KJs", callRaiseFold(0.45, 0.35))
+        put("KTs", call(0.70)); put("K9s", call(0.35))
+
+        put("QJs", callRaiseFold(0.45, 0.30))
+        put("QTs", call(0.70)); put("Q9s", call(0.35))
+        put("JTs", callRaiseFold(0.50, 0.25)); put("J9s", call(0.50))
+        put("T9s", call(0.60)); put("98s", call(0.50))
+        put("87s", call(0.35)); put("76s", call(0.25))
+
+        put("AKo", callRaiseFold(0.05, 0.90))
+        put("AQo", callRaiseFold(0.20, 0.70))
+        put("AJo", call(0.50)); put("ATo", call(0.25))
+        put("KQo", call(0.60)); put("KJo", call(0.25))
     }
 
     // ---------------------------------------------------------------------
@@ -500,7 +605,9 @@ object PreflopRangeManager {
             RangeScenario.BbVsRfi(Position.CO,  2.5) to buildMatrix(BB_VS_CO_RFI),
             RangeScenario.BbVsRfi(Position.BTN, 2.5) to buildMatrix(BB_VS_BTN_RFI),
             RangeScenario.BbVsRfi(Position.SB,  2.5) to buildMatrix(BB_VS_SB_RFI),
-            RangeScenario.SbVsRfi(Position.BTN, 2.5) to buildMatrix(SB_VS_BTN_RFI)
+            RangeScenario.SbVsRfi(Position.BTN, 2.5) to buildMatrix(SB_VS_BTN_RFI),
+            RangeScenario.SbVsRfi(Position.CO,  2.5) to buildMatrix(SB_VS_CO_RFI),
+            RangeScenario.SbVsRfi(Position.HJ,  2.5) to buildMatrix(SB_VS_HJ_RFI)
         )
     }
 

@@ -50,4 +50,29 @@ class SbVsRfiRangeTest {
     @Test fun scenarioIsBuiltIn() {
         assertTrue(PreflopRangeManager.isSupported(scenario))
     }
+
+    @Test fun sbVsCoIsTighterThanVsBtn() {
+        val vsBtn = defendFreq(RangeScenario.SbVsRfi(Position.BTN, 2.5))
+        val vsCo  = defendFreq(RangeScenario.SbVsRfi(Position.CO,  2.5))
+        val vsHj  = defendFreq(RangeScenario.SbVsRfi(Position.HJ,  2.5))
+        assertTrue("vs CO should be tighter than vs BTN ($vsCo vs $vsBtn)", vsCo < vsBtn)
+        assertTrue("vs HJ should be tighter than vs CO ($vsHj vs $vsCo)", vsHj < vsCo)
+    }
+
+    @Test fun sbVsCoAndHjAreBuiltIn() {
+        assertTrue(PreflopRangeManager.isSupported(RangeScenario.SbVsRfi(Position.CO, 2.5)))
+        assertTrue(PreflopRangeManager.isSupported(RangeScenario.SbVsRfi(Position.HJ, 2.5)))
+    }
+
+    private fun defendFreq(sc: RangeScenario): Double {
+        var defended = 0.0
+        var total = 0.0
+        for (hand in HandClass.all169()) {
+            val s = PreflopRangeManager.strategyFor(sc, hand)
+            val w = hand.combos.toDouble()
+            total += w
+            defended += w * (1.0 - s.fold)
+        }
+        return defended / total
+    }
 }
